@@ -468,7 +468,7 @@ input:focus, select:focus { outline: none; border-color: var(--green-light); }
 
 <script>
 // ========== CONFIGURATION FIREBASE ==========
-// ⚠️ À REMPLACER PAR VOS IDENTIFIANTS FIREBASE ⚠️
+// ========== CONFIGURATION FIREBASE (version compatible) ==========
 const firebaseConfig = {
   apiKey: "AIzaSyB7xBajLC9cMDMNDyWnM-495uivwKsg3po",
   authDomain: "budget-familial-99207.firebaseapp.com",
@@ -478,11 +478,11 @@ const firebaseConfig = {
   messagingSenderId: "697097113241",
   appId: "1:697097113241:web:24575cfaf92119bb7df208"
 };
-// Initialisation Firebase
+
+// Initialisation (version compatible)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
-
 // ========== ÉTAT GLOBAL ==========
 const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
