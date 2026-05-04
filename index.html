@@ -109,11 +109,15 @@ body {
   cursor: pointer;
 }
 .sidebar-mobile .sidebar-brand { padding: 0 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-mobile .sidebar-brand h2 { font-size: 1.1rem; }
 .sidebar-mobile .month-nav { padding: 16px; display: flex; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .sidebar-mobile .month-nav select { background: rgba(255,255,255,0.12); color: white; border: none; padding: 8px; border-radius: 6px; flex: 1; }
-.sidebar-mobile .nav-item { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-left: 3px solid transparent; }
+.sidebar-mobile .nav-section-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; padding: 12px 16px 4px; margin-top: 4px; }
+.sidebar-mobile .nav-item { padding: 10px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-left: 3px solid transparent; }
 .sidebar-mobile .nav-item.active { background: rgba(255,255,255,0.15); border-left-color: var(--green-light); }
-.sidebar-mobile .nav-badge { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; }
+.sidebar-mobile .nav-item .nav-icon { font-size: 1.2rem; width: 28px; }
+.sidebar-mobile .nav-item .nav-label { flex: 1; font-size: 0.85rem; }
+.sidebar-mobile .nav-badge { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: auto; }
 .sidebar-mobile .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
 .sidebar-mobile .sidebar-footer button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
 .sidebar-mobile #authBtnMobile { background: var(--green-light); }
@@ -135,9 +139,12 @@ body {
 .desktop-sidebar .sidebar-brand h1 { font-size: 1.1rem; }
 .desktop-sidebar .month-nav { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; gap: 8px; }
 .desktop-sidebar .month-nav select { background: rgba(255,255,255,0.12); color: white; border: none; padding: 8px; border-radius: 6px; flex: 1; }
-.desktop-sidebar .nav-item { padding: 10px 20px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-left: 3px solid transparent; }
+.desktop-sidebar .nav-section-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; padding: 12px 20px 4px; margin-top: 4px; }
+.desktop-sidebar .nav-item { padding: 8px 20px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-left: 3px solid transparent; }
 .desktop-sidebar .nav-item.active { background: rgba(255,255,255,0.1); border-left-color: var(--green-light); }
-.desktop-sidebar .nav-badge { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; }
+.desktop-sidebar .nav-item .nav-icon { font-size: 1.1rem; width: 24px; }
+.desktop-sidebar .nav-item .nav-label { flex: 1; }
+.desktop-sidebar .nav-badge { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: auto; }
 .desktop-sidebar .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
 .desktop-sidebar .sidebar-footer button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
 .desktop-sidebar #authBtnDesktop { background: var(--green-light); }
@@ -400,7 +407,7 @@ input:focus, select:focus { outline: none; border-color: var(--green-light); }
 <!-- Mobile Sidebar -->
 <div class="sidebar-mobile" id="sidebarMobile">
   <button class="close-btn" id="closeSidebarBtn">✕</button>
-  <div class="sidebar-brand"><h2>Budget Familial</h2><p>Avec reports & cloud</p></div>
+  <div class="sidebar-brand"><h2>Budget Familial</h2><p style="font-size:0.7rem;opacity:0.7;">Avec reports & cloud</p></div>
   <div class="month-nav">
     <select id="monthSelectMobile"></select>
     <select id="yearSelectMobile"></select>
@@ -416,7 +423,7 @@ input:focus, select:focus { outline: none; border-color: var(--green-light); }
 
 <!-- Desktop Sidebar -->
 <div class="desktop-sidebar">
-  <div class="sidebar-brand"><h1>💰 Budget Familial</h1><p>Avec reports & cloud ☁️</p></div>
+  <div class="sidebar-brand"><h1>💰 Budget Familial</h1><p style="font-size:0.7rem;opacity:0.7;">Avec reports & cloud ☁️</p></div>
   <div class="month-nav">
     <select id="monthSelectDesktop"></select>
     <select id="yearSelectDesktop"></select>
@@ -432,123 +439,36 @@ input:focus, select:focus { outline: none; border-color: var(--green-light); }
 
 <!-- Main Content -->
 <div class="main-content">
-  <!-- Dashboard -->
   <div id="page-dashboard" class="page active">
-    <div class="topbar">
-      <h2 id="dashboardTitle">Tableau de bord</h2>
-      <button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Programmer</button>
-    </div>
+    <div class="topbar"><h2 id="dashboardTitle">Tableau de bord</h2><button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Programmer</button></div>
     <div class="summary-grid" id="summaryGrid"></div>
     <div class="cat-grid" id="catGrid"></div>
   </div>
-
-  <!-- Recettes -->
   <div id="page-recettes" class="page">
-    <div class="topbar">
-      <h2>💰 Recettes</h2>
-      <button class="btn btn-primary btn-sm" onclick="openProgModal('recette')">+ Programmer</button>
-    </div>
-    <div class="card">
-      <div class="card-header"><h3>Ajouter une recette</h3></div>
-      <div class="card-body">
-        <div class="form-row">
-          <div class="form-group"><label>Libellé</label><input type="text" id="rec-libelle" list="sug-recettes"></div>
-          <div class="form-group"><label>Montant (€)</label><input type="number" id="rec-montant" step="0.01"></div>
-          <div class="form-group"><label>Date</label><input type="date" id="rec-date"></div>
-          <div class="form-group"><button class="btn btn-primary" onclick="addRecette()">Ajouter</button></div>
-        </div>
-        <datalist id="sug-recettes"></datalist>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><h3>Recettes du mois</h3><span class="font-mono text-green" id="totalRecettes">0,00 €</span></div>
-      <div class="card-body"><ul class="tx-list" id="listRecettes"></ul></div>
-    </div>
+    <div class="topbar"><h2>💰 Recettes</h2><button class="btn btn-primary btn-sm" onclick="openProgModal('recette')">+ Programmer</button></div>
+    <div class="card"><div class="card-header"><h3>Ajouter une recette</h3></div><div class="card-body"><div class="form-row"><div class="form-group"><label>Libellé</label><input type="text" id="rec-libelle" list="sug-recettes"></div><div class="form-group"><label>Montant (€)</label><input type="number" id="rec-montant" step="0.01"></div><div class="form-group"><label>Date</label><input type="date" id="rec-date"></div><div class="form-group"><button class="btn btn-primary" onclick="addRecette()">Ajouter</button></div></div><datalist id="sug-recettes"></datalist></div></div>
+    <div class="card"><div class="card-header"><h3>Recettes du mois</h3><span class="font-mono text-green" id="totalRecettes">0,00 €</span></div><div class="card-body"><ul class="tx-list" id="listRecettes"></ul></div></div>
   </div>
-
-  <!-- Catégorie dynamique -->
   <div id="page-categorie" class="page">
-    <div class="topbar">
-      <h2 id="catPageTitle">Catégorie</h2>
-      <div class="topbar-actions">
-        <button class="btn btn-secondary btn-sm" onclick="openProgModal('depense', currentCat)">+ Programmer</button>
-        <button class="btn btn-primary btn-sm" onclick="scrollToAddForm()">+ Ajouter</button>
-      </div>
-    </div>
+    <div class="topbar"><h2 id="catPageTitle">Catégorie</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="openProgModal('depense', currentCat)">+ Programmer</button><button class="btn btn-primary btn-sm" onclick="scrollToAddForm()">+ Ajouter</button></div></div>
     <div id="catBudgetContainer"></div>
     <div id="medicalSummaryBlock" style="display:none;" class="card"><div class="card-body"><div class="medical-summary"><div class="med-tile spent"><div class="med-val" id="med-depenses">0€</div><div class="med-lbl">Dépenses</div></div><div class="med-tile reimb"><div class="med-val" id="med-remb">0€</div><div class="med-lbl">Remboursements</div></div><div class="med-tile net"><div class="med-val" id="med-net">0€</div><div class="med-lbl">Coût net</div></div></div></div></div>
     <div class="card" id="addFormCard"><div class="card-header"><h3>Ajouter une transaction</h3></div><div class="card-body" id="addFormBody"></div></div>
     <div class="card"><div class="card-header"><h3>Transactions du mois</h3><span class="font-mono" id="catTotalLabel">0,00 €</span></div><div class="card-body"><ul class="tx-list" id="catTxList"></ul></div></div>
   </div>
-
-  <!-- Programmation -->
-  <div id="page-programmation" class="page">
-    <div class="topbar"><h2>🗓️ Programmation</h2><button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Nouvelle</button></div>
-    <div class="card"><div class="card-body" id="progListContainer"></div></div>
-  </div>
-
-  <!-- Répartition -->
-  <div id="page-repartition" class="page">
-    <div class="topbar"><h2>📐 Répartition des recettes</h2></div>
-    <div class="card">
-      <div class="card-header"><h3>Configuration</h3><button class="btn btn-primary btn-sm" onclick="applyRepartition()">Appliquer</button></div>
-      <div class="card-body"><p>Recettes totales : <strong id="totalRevLabel">0 €</strong></p><table class="rep-table"><thead><tr><th>Catégorie</th><th>Type</th><th>Valeur</th><th>Calculé</th><th>Budget actuel</th></tr></thead><tbody id="repTableBody"></tbody><tfoot><tr><td colspan="2"><b>Total alloué</b></td><td></td><td class="mono" id="repTotalCalc">0€</td><td class="mono" id="repTotalBudget">0€</td></tr></tfoot></table></div>
-    </div>
-  </div>
-
-  <!-- Bilan -->
-  <div id="page-bilan" class="page">
-    <div class="topbar"><h2>📋 Bilan mensuel</h2><button class="btn btn-secondary btn-sm" onclick="printBilan()">🖨️ Imprimer</button></div>
-    <div id="bilanContent"></div>
-  </div>
-
-  <!-- Catégories -->
-  <div id="page-categories" class="page">
-    <div class="topbar"><h2>⚙️ Catégories</h2></div>
-    <div class="card">
-      <div class="card-header"><h3>Ajouter</h3></div>
-      <div class="card-body">
-        <div class="form-row">
-          <div class="form-group"><label>Nom</label><input type="text" id="newCatName"></div>
-          <div class="form-group"><label>Icône</label><input type="text" id="newCatIcon" placeholder="🏷️" style="width:70px"></div>
-          <div class="form-group"><button class="btn btn-primary" onclick="addCategory()">Créer</button></div>
-        </div>
-      </div>
-    </div>
-    <div class="card"><div class="card-header"><h3>Liste</h3></div><div class="card-body" id="catManagerList"></div></div>
-  </div>
+  <div id="page-programmation" class="page"><div class="topbar"><h2>🗓️ Programmation</h2><button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Nouvelle</button></div><div class="card"><div class="card-body" id="progListContainer"></div></div></div>
+  <div id="page-repartition" class="page"><div class="topbar"><h2>📐 Répartition des recettes</h2></div><div class="card"><div class="card-header"><h3>Configuration</h3><button class="btn btn-primary btn-sm" onclick="applyRepartition()">Appliquer</button></div><div class="card-body"><p>Recettes totales : <strong id="totalRevLabel">0 €</strong></p><table class="rep-table"><thead><tr><th>Catégorie</th><th>Type</th><th>Valeur</th><th>Calculé</th><th>Budget actuel</th></tr></thead><tbody id="repTableBody"></tbody><tfoot><tr><td colspan="2"><b>Total alloué</b></td><td class="mono" id="repTotalCalc">0€</td><td class="mono" id="repTotalBudget">0€</td></tr></tfoot></table></div></div></div>
+  <div id="page-bilan" class="page"><div class="topbar"><h2>📋 Bilan mensuel</h2><button class="btn btn-secondary btn-sm" onclick="printBilan()">🖨️ Imprimer</button></div><div id="bilanContent"></div></div>
+  <div id="page-categories" class="page"><div class="topbar"><h2>⚙️ Catégories</h2></div><div class="card"><div class="card-header"><h3>Ajouter</h3></div><div class="card-body"><div class="form-row"><div class="form-group"><label>Nom</label><input type="text" id="newCatName"></div><div class="form-group"><label>Icône</label><input type="text" id="newCatIcon" placeholder="🏷️" style="width:70px"></div><div class="form-group"><button class="btn btn-primary" onclick="addCategory()">Créer</button></div></div></div></div><div class="card"><div class="card-header"><h3>Liste</h3></div><div class="card-body" id="catManagerList"></div></div></div>
 </div>
 
 <!-- Modals -->
 <div class="modal-overlay" id="progModalOverlay" onclick="if(event.target===this) closeProgModal()">
-  <div class="modal">
-    <div class="modal-header"><h3>📅 Programmer</h3><button class="btn btn-secondary btn-sm" onclick="closeProgModal()">✕</button></div>
-    <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group"><label>Type</label><select id="prog-type" onchange="onProgTypeChange()"><option value="depense">Dépense</option><option value="recette">Recette</option></select></div>
-        <div class="form-group" id="progCatGroup"><label>Catégorie</label><select id="prog-cat"></select></div>
-      </div>
-      <div class="form-group"><label>Libellé</label><input type="text" id="prog-libelle"></div>
-      <div class="form-row">
-        <div class="form-group"><label>Montant</label><input type="number" id="prog-montant" step="0.01"></div>
-        <div class="form-group"><label>Récurrence</label><select id="prog-recurrence"><option value="unique">Unique</option><option value="mensuel">Mensuel</option><option value="trimestriel">Trimestriel</option><option value="annuel">Annuel</option></select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Début</label><input type="date" id="prog-debut"></div>
-        <div class="form-group"><label>Fin</label><input type="date" id="prog-fin"></div>
-      </div>
-      <div class="form-group"><label>Notes</label><textarea id="prog-notes" rows="2"></textarea></div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeProgModal()">Annuler</button><button class="btn btn-primary" onclick="saveProg()">Enregistrer</button></div>
-  </div>
+  <div class="modal"><div class="modal-header"><h3>📅 Programmer</h3><button class="btn btn-secondary btn-sm" onclick="closeProgModal()">✕</button></div><div class="modal-body"><div class="form-row"><div class="form-group"><label>Type</label><select id="prog-type" onchange="onProgTypeChange()"><option value="depense">Dépense</option><option value="recette">Recette</option></select></div><div class="form-group" id="progCatGroup"><label>Catégorie</label><select id="prog-cat"></select></div></div><div class="form-group"><label>Libellé</label><input type="text" id="prog-libelle"></div><div class="form-row"><div class="form-group"><label>Montant</label><input type="number" id="prog-montant" step="0.01"></div><div class="form-group"><label>Récurrence</label><select id="prog-recurrence"><option value="unique">Unique</option><option value="mensuel">Mensuel</option><option value="trimestriel">Trimestriel</option><option value="annuel">Annuel</option></select></div></div><div class="form-row"><div class="form-group"><label>Début</label><input type="date" id="prog-debut"></div><div class="form-group"><label>Fin</label><input type="date" id="prog-fin"></div></div><div class="form-group"><label>Notes</label><textarea id="prog-notes" rows="2"></textarea></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeProgModal()">Annuler</button><button class="btn btn-primary" onclick="saveProg()">Enregistrer</button></div></div>
 </div>
 
 <div class="modal-overlay" id="editModalOverlay" onclick="if(event.target===this) closeEditModal()">
-  <div class="modal">
-    <div class="modal-header"><h3>✏️ Modifier</h3><button class="btn btn-secondary btn-sm" onclick="closeEditModal()">✕</button></div>
-    <div class="modal-body" id="editModalBody"></div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeEditModal()">Annuler</button><button class="btn btn-primary" onclick="saveEdit()">Enregistrer</button></div>
-  </div>
+  <div class="modal"><div class="modal-header"><h3>✏️ Modifier</h3><button class="btn btn-secondary btn-sm" onclick="closeEditModal()">✕</button></div><div class="modal-body" id="editModalBody"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeEditModal()">Annuler</button><button class="btn btn-primary" onclick="saveEdit()">Enregistrer</button></div></div>
 </div>
 
 <input type="file" id="importFileInput" accept=".json" style="display:none">
@@ -726,34 +646,85 @@ auth.onAuthStateChanged(async user => {
   else { updateAuthButtons(null); loadState(); buildSidebar(); if (currentCat) renderCatPage(currentCat); else navigateTo(currentPage); }
 });
 
-// ========== INTERFACE ==========
+// ========== CONSTRUCTION DU MENU AVEC SECTIONS (Desktop + Mobile) ==========
 function buildSidebar() {
   const desktopContainer = document.getElementById('desktopNavItems');
   const mobileContainer = document.getElementById('mobileNavItems');
   if (!desktopContainer) return;
   
-  const navHtml = (cat) => `<div class="nav-item" data-cat="${cat.id}"><span class="nav-icon">${cat.icon}</span><span class="nav-label">${cat.name}</span><span class="nav-badge" id="badge-${cat.id}">0€</span></div>`;
-  let html = '';
-  state.categories.forEach(c => html += navHtml(c));
+  // Construction du HTML des menus avec sections
+  let html = `
+    <div class="nav-section-label">📌 Vue d'ensemble</div>
+    <div class="nav-item" data-page="dashboard">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Dashboard</span>
+    </div>
+    <div class="nav-item" data-page="recettes">
+      <span class="nav-icon">💰</span>
+      <span class="nav-label">Recettes</span>
+      <span class="nav-badge" id="badge-recettes-mobile">0€</span>
+    </div>
+    
+    <div class="nav-section-label">📂 Dépenses</div>
+  `;
+  
+  // Ajouter toutes les catégories
+  state.categories.forEach(c => {
+    html += `
+      <div class="nav-item" data-cat="${c.id}">
+        <span class="nav-icon">${c.icon}</span>
+        <span class="nav-label">${c.name}</span>
+        <span class="nav-badge" id="badge-${c.id}">0€</span>
+      </div>
+    `;
+  });
+  
+  html += `
+    <div class="nav-section-label">🛠️ Outils</div>
+    <div class="nav-item" data-page="programmation">
+      <span class="nav-icon">🗓️</span>
+      <span class="nav-label">Programmations</span>
+    </div>
+    <div class="nav-item" data-page="repartition">
+      <span class="nav-icon">📐</span>
+      <span class="nav-label">Répartition</span>
+    </div>
+    <div class="nav-item" data-page="bilan">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">Bilan</span>
+    </div>
+    <div class="nav-item" data-page="categories">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Catégories</span>
+    </div>
+  `;
+  
+  // Appliquer le HTML aux deux sidebars
   desktopContainer.innerHTML = html;
   mobileContainer.innerHTML = html;
   
-  document.querySelectorAll('.nav-item[data-cat]').forEach(el => {
-    el.onclick = () => { navigateTo('categorie', el.dataset.cat); closeMobileSidebar(); };
-  });
-  document.querySelectorAll('.nav-item[data-page]').forEach(el => {
+  // Ajouter les événements de navigation
+  document.querySelectorAll('.desktop-sidebar .nav-item[data-page], .sidebar-mobile .nav-item[data-page]').forEach(el => {
     el.onclick = () => { navigateTo(el.dataset.page); closeMobileSidebar(); };
   });
+  document.querySelectorAll('.desktop-sidebar .nav-item[data-cat], .sidebar-mobile .nav-item[data-cat]').forEach(el => {
+    el.onclick = () => { navigateTo('categorie', el.dataset.cat); closeMobileSidebar(); };
+  });
+  
   updateBadges();
 }
 
 function updateBadges() {
+  // Mettre à jour les badges des catégories
   state.categories.forEach(c => {
-    let el = document.getElementById(`badge-${c.id}`);
-    if (el) el.textContent = fmtEur(getTotalDepensesCat(c.id));
+    const spent = getTotalDepensesCat(c.id);
+    const badges = document.querySelectorAll(`#badge-${c.id}`);
+    badges.forEach(badge => { if (badge) badge.textContent = fmtEur(spent); });
   });
-  let brec = document.getElementById('badge-recettes');
-  if (brec) brec.textContent = fmtEur(getTotalRecettes());
+  // Mettre à jour le badge des recettes
+  const totalRec = getTotalRecettes();
+  const recBadges = document.querySelectorAll('#badge-recettes-mobile, #badge-recettes-desktop');
+  recBadges.forEach(badge => { if (badge) badge.textContent = fmtEur(totalRec); });
 }
 
 function navigateTo(page, catId=null) {
@@ -776,7 +747,7 @@ function navigateTo(page, catId=null) {
   updateBadges();
 }
 
-// ========== RENDU DES PAGES (toutes les fonctions conservées) ==========
+// ========== RENDU DES PAGES ==========
 function renderDashboard() {
   document.getElementById('dashboardTitle').innerHTML = `${MONTHS[currentMonth]} ${currentYear}`;
   let totalRec = getTotalRecettes();
@@ -822,7 +793,7 @@ function renderRecettes() {
   let dl = document.getElementById('sug-recettes');
   if (state.suggestions.recettes) dl.innerHTML = state.suggestions.recettes.map(v=>`<option value="${v}">`).join('');
   let list = document.getElementById('listRecettes');
-  if (all.length === 0) list.innerHTML = '<li class="empty" style="padding:20px;text-align:center;color:#6c757d;">Aucune recette</li>';
+  if (all.length === 0) list.innerHTML = '<li style="padding:20px;text-align:center;color:#6c757d;">Aucune recette</li>';
   else list.innerHTML = all.map(r => `<li class="tx-item"><div class="tx-dot"></div><div class="tx-info"><div class="tx-label">${r.libelle}${r.isProgrammed?'<span class="badge badge-blue">Prog.</span>':''}</div><div class="tx-meta">${r.date}</div></div><div class="tx-amount credit">${fmtEur(r.montant)}</div><div class="tx-actions">${!r.isProgrammed?`<button class="btn btn-secondary btn-sm" onclick="openEditModal('recette',null,'${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="removeRecette('${r.id}')">🗑️</button>`:''}</div></li>`).join('');
 }
 
@@ -931,7 +902,7 @@ function deleteProg(pid) { if(confirm('Supprimer cette programmation ?')){ state
 
 function renderProgrammation() {
   let cont = document.getElementById('progListContainer');
-  if (!state.programmations.length) { cont.innerHTML='<p class="empty" style="padding:20px;text-align:center;color:#6c757d;">Aucune programmation</p>'; return; }
+  if (!state.programmations.length) { cont.innerHTML='<p style="padding:20px;text-align:center;color:#6c757d;">Aucune programmation</p>'; return; }
   cont.innerHTML = state.programmations.map(p => { let cat = state.categories.find(c=>c.id===p.catId); return `<div class="prog-item ${p.suspended?'suspended':''}"><div class="pi-info"><div class="pi-name">${p.libelle} ${p.suspended?'⏸ Suspendu':''}</div><div class="pi-meta"><span class="badge badge-amber">${p.recurrence}</span> ${cat?cat.icon+' '+cat.name:''} ${p.debut} → ${p.fin}${p.notes ? ' 📝 '+p.notes : ''}</div></div><div><div class="pi-amount ${p.type==='recette'?'text-green':'text-red'}">${fmtEur(p.montant)}</div><div style="display:flex;gap:4px;margin-top:6px;"><button class="btn btn-secondary btn-sm" onclick="suspendProg('${p.id}')">${p.suspended?'▶️':'⏸️'}</button><button class="btn btn-danger btn-sm" onclick="deleteProg('${p.id}')">🗑️</button></div></div></div>`; }).join('');
 }
 
@@ -945,7 +916,7 @@ function renderRepartition() {
     let val = cfg.val==='' ? '' : parseFloat(cfg.val);
     let calc = (val && !isNaN(val)) ? (cfg.type==='pct' ? (val/100)*totalRec : val) : 0;
     totalCalc += calc; totalBudget += (md.budgets||{})[c.id]||0;
-    return `<tr><td>${c.icon} ${c.name}</td><td><select onchange="updateRepartType('${c.id}',this.value)"><option value="pct" ${cfg.type==='pct'?'selected':''}>%</option><option value="fixed" ${cfg.type==='fixed'?'selected':''}>€</option></select></td><td><input type="number" value="${cfg.val}" onchange="updateRepartVal('${c.id}',this.value)" style="width:70px;"></td><td class="mono">${calc>0?fmtEur(calc):'—'}</td><td class="mono">${fmtEur((md.budgets||{})[c.id]||0)}</td></tr>`;
+    return `<tr><td><span style="font-size:1.1rem;">${c.icon}</span> ${c.name}</td><td><select onchange="updateRepartType('${c.id}',this.value)"><option value="pct" ${cfg.type==='pct'?'selected':''}>%</option><option value="fixed" ${cfg.type==='fixed'?'selected':''}>€</option></select></td><td><input type="number" value="${cfg.val}" onchange="updateRepartVal('${c.id}',this.value)" style="width:70px;"></td><td class="mono">${calc>0?fmtEur(calc):'—'}</td><td class="mono">${fmtEur((md.budgets||{})[c.id]||0)}</td></tr>`;
   }).join('');
   document.getElementById('repTotalCalc').innerHTML = fmtEur(totalCalc);
   document.getElementById('repTotalBudget').innerHTML = fmtEur(totalBudget);
@@ -1050,13 +1021,11 @@ function init() {
   document.getElementById('monthSelectDesktop')?.addEventListener('change', updateMonthYear);
   document.getElementById('yearSelectDesktop')?.addEventListener('change', updateMonthYear);
   document.getElementById('monthSelectMobile')?.addEventListener('change', () => { currentMonth = parseInt(document.getElementById('monthSelectMobile').value); currentYear = parseInt(document.getElementById('yearSelectMobile').value); if (document.getElementById('monthSelectDesktop')) document.getElementById('monthSelectDesktop').value = currentMonth; if (document.getElementById('yearSelectDesktop')) document.getElementById('yearSelectDesktop').value = currentYear; if (currentCat) renderCatPage(currentCat); else navigateTo(currentPage); closeMobileSidebar(); });
-  document.getElementById('yearSelectMobile')?.addEventListener('change', () => { currentMonth = parseInt(document.getElementById('monthSelectMobile').value); currentYear = parseInt(document.getElementById('yearSelectMobile').value); if (document.getElementById('monthSelectDesktop')) document.getElementById('monthSelectDesktop').value = currentMonth; if (document.getElementById('yearSelectDesktop')) document.getElementById('yearSelectDesktop').value = currentYear; if (currentCat) renderCatPage(currentCat); else navigateTo(currentPage); closeMobileSidebar(); });
+  document.getElementById('yearSelectMobile')?.addEventListener('change', () => { currentMonth = parseInt(document.getElementById('yearSelectMobile').value); currentYear = parseInt(document.getElementById('yearSelectMobile').value); if (document.getElementById('monthSelectDesktop')) document.getElementById('monthSelectDesktop').value = currentMonth; if (document.getElementById('yearSelectDesktop')) document.getElementById('yearSelectDesktop').value = currentYear; if (currentCat) renderCatPage(currentCat); else navigateTo(currentPage); closeMobileSidebar(); });
   
   document.getElementById('hamburgerBtn')?.addEventListener('click', openMobileSidebar);
   document.getElementById('closeSidebarBtn')?.addEventListener('click', closeMobileSidebar);
   document.getElementById('sidebarOverlay')?.addEventListener('click', closeMobileSidebar);
-  
-  document.querySelectorAll('.nav-item[data-page]').forEach(el => { el.onclick = () => { navigateTo(el.dataset.page); closeMobileSidebar(); }; });
   
   buildSidebar();
   navigateTo('dashboard');
