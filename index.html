@@ -745,6 +745,102 @@ function init(){
   ['scrollToAddForm','addRecette','removeRecette','openEditModal','closeEditModal','saveEdit','updateCatBudget','addDepense','removeDepense','openProgModal','closeProgModal','saveProg','suspendProg','deleteProg','onProgTypeChange','updateRepartType','updateRepartVal','applyRepartition','addCategory','updateCatName','updateCatIcon','deleteCategory','exportData','importDataClick','resetMonth','printBilan','navigateTo','addAuthorizedUser','removeAuthorizedUser','signInWithGoogle','signInWithEmail','signOut'].forEach(fn=>{window[fn]=eval(fn);});
 }
 init();
+// ===== FONCTIONS MANQUANTES =====
+
+// Répartition
+function updateRepartType(catId, type){
+  if(!state.repartitionConfig[catId]) state.repartitionConfig[catId] = {};
+  state.repartitionConfig[catId].type = type;
+  saveState();
+}
+
+function updateRepartVal(catId, val){
+  if(!state.repartitionConfig[catId]) state.repartitionConfig[catId] = {};
+  state.repartitionConfig[catId].val = val;
+  saveState();
+}
+
+function applyRepartition(){
+  let total = getTotalRecettes();
+  let md = getMonthData();
+
+  state.categories.forEach(c=>{
+    let cfg = state.repartitionConfig[c.id];
+    if(!cfg || !cfg.val) return;
+
+    let montant = cfg.type === 'pct'
+      ? (parseFloat(cfg.val)/100)*total
+      : parseFloat(cfg.val);
+
+    md.budgets[c.id] = Math.round(montant);
+  });
+
+  saveState();
+  renderDashboard();
+  showToast("Répartition appliquée","success");
+}
+
+// Catégories
+function addCategory(){
+  let name = document.getElementById('newCatName').value.trim();
+  let icon = document.getElementById('newCatIcon').value.trim() || '📁';
+  if(!name) return showToast("Nom requis","error");
+
+  state.categories.push({
+    id: name.toLowerCase().replace(/\s+/g,'_'),
+    name,
+    icon
+  });
+
+  saveState();
+  buildSidebar();
+  renderCatManager();
+}
+
+function deleteCategory(id){
+  if(!confirm("Supprimer ?")) return;
+  state.categories = state.categories.filter(c=>c.id!==id);
+  saveState();
+  buildSidebar();
+  renderCatManager();
+}
+
+// Export / Import
+function exportData(){
+  let blob = new Blob([JSON.stringify(state)], {type:'application/json'});
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'budget.json';
+  a.click();
+}
+
+function importDataClick(){
+  document.getElementById('importFileInput').click();
+}
+
+function importData(e){
+  let file = e.target.files[0];
+  let reader = new FileReader();
+  reader.onload = ()=>{
+    state = JSON.parse(reader.result);
+    saveState();
+    location.reload();
+  };
+  reader.readAsText(file);
+}
+
+// Reset mois
+function resetMonth(){
+  let key = getMonthKey();
+  state.months[key] = {recettes:[],depenses:{},budgets:{}};
+  saveState();
+  navigateTo('dashboard');
+}
+
+// Bilan
+function printBilan(){
+  window.print();
+}
 </script>
 </body>
 </html>
