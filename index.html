@@ -155,6 +155,15 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 .prog-item .pi-info{flex:1;}.prog-item .pi-name{font-size:0.85rem;font-weight:600;}
 .prog-item .pi-meta{font-size:0.7rem;color:var(--grey-600);margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;}
 .prog-item.suspended{opacity:0.5;}
+/* PRINT */
+@media print{
+  .desktop-sidebar,.mobile-header,.sidebar-overlay,.sidebar-mobile,.topbar-actions,.btn,.tx-actions,#toast,.modal-overlay{display:none!important;}
+  .main-content{margin-left:0!important;padding:10px!important;}
+  .page{display:block!important;}
+  .page:not(.active){display:none!important;}
+}
+/* REFRESH INDICATOR */
+.refresh-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;background:rgba(82,183,136,0.15);color:var(--green);padding:3px 10px;border-radius:20px;}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--grey-800);color:white;padding:12px 20px;border-radius:40px;font-size:0.85rem;z-index:9000;transition:transform 0.2s;pointer-events:none;white-space:nowrap;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 #toast.success{background:var(--green);}#toast.error{background:var(--red);}
@@ -249,12 +258,12 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 
 <div class="main-content">
   <div id="page-dashboard" class="page active">
-    <div class="topbar"><h2 id="dashboardTitle">Tableau de bord</h2><button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Programmer</button></div>
+    <div class="topbar"><h2 id="dashboardTitle">Tableau de bord</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="refreshAll()">🔄 Actualiser</button><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimer</button><button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Programmer</button></div></div>
     <div class="summary-grid" id="summaryGrid"></div>
     <div class="cat-grid" id="catGrid"></div>
   </div>
   <div id="page-recettes" class="page">
-    <div class="topbar"><h2>💰 Recettes</h2><button class="btn btn-primary btn-sm" onclick="openProgModal('recette')">+ Programmer</button></div>
+    <div class="topbar"><h2>💰 Recettes</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="refreshAll()">🔄</button><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️</button><button class="btn btn-primary btn-sm" onclick="openProgModal('recette')">+ Programmer</button></div></div>
     <div class="card"><div class="card-header"><h3>Ajouter une recette</h3></div><div class="card-body">
       <div class="form-row">
         <div class="form-group"><label>Libellé</label><input type="text" id="rec-libelle" list="sug-recettes" autocomplete="off"></div>
@@ -267,13 +276,13 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
     <div class="card"><div class="card-header"><h3>Recettes du mois</h3><span class="font-mono text-green" id="totalRecettes">0,00 €</span></div><div class="card-body"><ul class="tx-list" id="listRecettes"></ul></div></div>
   </div>
   <div id="page-categorie" class="page">
-    <div class="topbar"><h2 id="catPageTitle">Catégorie</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="openProgModal('depense',currentCat)">+ Programmer</button><button class="btn btn-primary btn-sm" onclick="scrollToAddForm()">+ Ajouter</button></div></div>
+    <div class="topbar"><h2 id="catPageTitle">Catégorie</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="refreshAll()">🔄</button><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️</button><button class="btn btn-secondary btn-sm" onclick="openProgModal('depense',currentCat)">+ Programmer</button><button class="btn btn-primary btn-sm" onclick="scrollToAddForm()">+ Ajouter</button></div></div>
     <div id="catBudgetContainer"></div>
     <div id="medicalSummaryBlock" style="display:none;" class="card"><div class="card-body"><div class="medical-summary"><div class="med-tile spent"><div class="med-val" id="med-depenses">0€</div><div class="med-lbl">Dépenses</div></div><div class="med-tile reimb"><div class="med-val" id="med-remb">0€</div><div class="med-lbl">Remboursements</div></div><div class="med-tile net"><div class="med-val" id="med-net">0€</div><div class="med-lbl">Coût net</div></div></div></div></div>
     <div class="card" id="addFormCard"><div class="card-header"><h3>Ajouter une transaction</h3></div><div class="card-body" id="addFormBody"></div></div>
     <div class="card"><div class="card-header"><h3>Transactions du mois</h3><span class="font-mono" id="catTotalLabel">0,00 €</span></div><div class="card-body"><ul class="tx-list" id="catTxList"></ul></div></div>
   </div>
-  <div id="page-programmation" class="page"><div class="topbar"><h2>🗓️ Programmation</h2><button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Nouvelle</button></div><div class="card"><div class="card-body" id="progListContainer"></div></div></div>
+  <div id="page-programmation" class="page"><div class="topbar"><h2>🗓️ Programmation</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="refreshAll()">🔄 Actualiser</button><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimer</button><button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Nouvelle</button></div></div><div class="card"><div class="card-body" id="progListContainer"></div></div></div>
   <div id="page-repartition" class="page"><div class="topbar"><h2>📐 Répartition des recettes</h2></div><div class="card"><div class="card-header"><h3>Configuration</h3><button class="btn btn-primary btn-sm" onclick="applyRepartition()">Appliquer</button></div><div class="card-body"><p>Recettes totales : <strong id="totalRevLabel">0 €</strong></p><table class="rep-table"><thead><tr><th>Catégorie</th><th>Type</th><th>Valeur</th><th>Calculé</th><th>Budget actuel</th></tr></thead><tbody id="repTableBody"></tbody><tfoot><tr><td colspan="2"><b>Total alloué</b></td><td class="mono" id="repTotalCalc">0€</td><td class="mono" id="repTotalBudget">0€</td></tr></tfoot></table></div></div></div>
   <div id="page-bilan" class="page"><div class="topbar"><h2>📋 Bilan mensuel</h2><button class="btn btn-secondary btn-sm" onclick="printBilan()">🖨️ Imprimer</button></div><div id="bilanContent"></div></div>
   <div id="page-categories" class="page"><div class="topbar"><h2>⚙️ Catégories</h2></div><div class="card"><div class="card-header"><h3>Ajouter</h3></div><div class="card-body"><div class="form-row"><div class="form-group"><label>Nom</label><input type="text" id="newCatName"></div><div class="form-group"><label>Icône</label><input type="text" id="newCatIcon" placeholder="🏷️" style="width:70px"></div><div class="form-group"><button class="btn btn-primary" onclick="addCategory()">Créer</button></div></div></div></div><div class="card"><div class="card-header"><h3>Liste</h3></div><div class="card-body" id="catManagerList"></div></div></div>
@@ -305,8 +314,10 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
   <div class="modal"><div class="modal-header"><h3>✏️ Modifier la transaction</h3><button class="btn btn-secondary btn-sm" onclick="closeEditModal()">✕</button></div><div class="modal-body" id="editModalBody"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeEditModal()">Annuler</button><button class="btn btn-primary" onclick="saveEdit()">Enregistrer</button></div></div>
 </div>
 
+<div class="modal-overlay" id="editProgModalOverlay" onclick="if(event.target===this) closeEditProgModal()">
+  <div class="modal"><div class="modal-header"><h3>✏️ Modifier la programmation</h3><button class="btn btn-secondary btn-sm" onclick="closeEditProgModal()">✕</button></div><div class="modal-body" id="editProgModalBody"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeEditProgModal()">Annuler</button><button class="btn btn-primary" onclick="saveEditProg()">Enregistrer</button></div></div>
+</div>
 <input type="file" id="importFileInput" accept=".json" style="display:none">
-<div id="toast"></div>
 
 <script>
 const firebaseConfig={apiKey:"AIzaSyB7xBajLC9cMDMNDyWnM-495uivwKsg3po",authDomain:"budget-familial-99207.firebaseapp.com",databaseURL:"https://budget-familial-99207-default-rtdb.europe-west1.firebasedatabase.app",projectId:"budget-familial-99207",storageBucket:"budget-familial-99207.firebasestorage.app",messagingSenderId:"697097113241",appId:"1:697097113241:web:24575cfaf92119bb7df208"};
@@ -332,7 +343,8 @@ const defaultCategories=[
   {id:'impots',name:'Impôts',icon:'🏛️'},
   {id:'ecoles',name:'Écoles',icon:'🎒'},
   {id:'vacances',name:'Vacances',icon:'✈️'},
-  {id:'cadeaux',name:'Cadeaux',icon:'🎁'}
+  {id:'cadeaux',name:'Cadeaux',icon:'🎁'},
+  {id:'liquide',name:'Liquide',icon:'💵'}
 ];
 
 let state={categories:[],programmations:[],repartitionConfig:{},months:{},suggestions:{}};
@@ -673,10 +685,50 @@ function saveProg(){
 }
 function suspendProg(pid){let p=state.programmations.find(x=>x.id===pid);if(p){p.suspended=!p.suspended;saveState();renderProgrammation();updateBadges();}}
 function deleteProg(pid){if(confirm('Supprimer cette programmation ?')){state.programmations=state.programmations.filter(p=>p.id!==pid);saveState();renderProgrammation();updateBadges();}}
+
+let editingProgId=null;
+function openEditProgModal(pid){
+  let p=state.programmations.find(x=>x.id===pid);if(!p)return;
+  editingProgId=pid;
+  let catOptions=state.categories.map(c=>`<option value="${c.id}" ${c.id===p.catId?'selected':''}>${c.icon} ${c.name}</option>`).join('');
+  document.getElementById('editProgModalBody').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Type</label><select id="eprog-type"><option value="depense" ${p.type==='depense'?'selected':''}>Dépense</option><option value="recette" ${p.type==='recette'?'selected':''}>Recette</option></select></div>
+      <div class="form-group" id="eprogCatGroup" style="${p.type==='recette'?'display:none':''}"><label>Catégorie</label><select id="eprog-cat">${catOptions}</select></div>
+    </div>
+    <div class="form-group"><label>Libellé</label><input type="text" id="eprog-libelle" value="${p.libelle.replace(/"/g,'&quot;')}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Montant (€)</label><input type="number" id="eprog-montant" value="${p.montant}" step="0.01"></div>
+      <div class="form-group"><label>Récurrence</label><select id="eprog-recurrence"><option value="unique" ${p.recurrence==='unique'?'selected':''}>Unique</option><option value="mensuel" ${p.recurrence==='mensuel'?'selected':''}>Mensuel</option><option value="trimestriel" ${p.recurrence==='trimestriel'?'selected':''}>Trimestriel</option><option value="annuel" ${p.recurrence==='annuel'?'selected':''}>Annuel</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Début</label><input type="date" id="eprog-debut" value="${p.debut}"></div>
+      <div class="form-group"><label>Fin</label><input type="date" id="eprog-fin" value="${p.fin}"></div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="eprog-notes" rows="2">${p.notes||''}</textarea></div>`;
+  document.getElementById('eprog-type').onchange=()=>{document.getElementById('eprogCatGroup').style.display=document.getElementById('eprog-type').value==='recette'?'none':'';};
+  document.getElementById('editProgModalOverlay').classList.add('open');
+}
+function closeEditProgModal(){document.getElementById('editProgModalOverlay').classList.remove('open');editingProgId=null;}
+function saveEditProg(){
+  if(!editingProgId)return;
+  let p=state.programmations.find(x=>x.id===editingProgId);if(!p)return;
+  let lib=document.getElementById('eprog-libelle').value.trim();
+  let mont=parseFloat(document.getElementById('eprog-montant').value);
+  let debut=document.getElementById('eprog-debut').value;
+  let fin=document.getElementById('eprog-fin').value;
+  if(!lib||!mont||mont<=0||!debut||!fin)return showToast('Champs requis','error');
+  p.libelle=lib;p.montant=mont;p.recurrence=document.getElementById('eprog-recurrence').value;
+  p.debut=debut;p.fin=fin;p.notes=document.getElementById('eprog-notes').value;
+  p.type=document.getElementById('eprog-type').value;
+  if(p.type!=='recette')p.catId=document.getElementById('eprog-cat').value;
+  saveState();closeEditProgModal();showToast('Programmation modifiée','success');renderProgrammation();updateBadges();
+}
+
 function renderProgrammation(){
   let cont=document.getElementById('progListContainer');
   if(!state.programmations.length){cont.innerHTML='<p style="padding:20px;text-align:center;color:#6c757d;">Aucune programmation</p>';return;}
-  cont.innerHTML=state.programmations.map(p=>{let cat = state.categories.find(c=>c.id===p.catId) || {icon:'❓', name:'Supprimée'};return`<div class="prog-item ${p.suspended?'suspended':''}"><div class="pi-info"><div class="pi-name">${p.libelle} ${p.suspended?'⏸ Suspendu':''}</div><div class="pi-meta"><span class="badge badge-amber">${p.recurrence}</span> ${cat?cat.icon+' '+cat.name:''} ${p.debut} → ${p.fin}${p.notes?' 📝 '+p.notes:''}</div></div><div><div class="pi-amount ${p.type==='recette'?'text-green':'text-red'}">${fmtEur(p.montant)}</div><div style="display:flex;gap:4px;margin-top:6px;"><button class="btn btn-secondary btn-sm" onclick="suspendProg('${p.id}')">${p.suspended?'▶️':'⏸️'}</button><button class="btn btn-danger btn-sm" onclick="deleteProg('${p.id}')">🗑️</button></div></div></div>`;}).join('');
+  cont.innerHTML=state.programmations.map(p=>{let cat=state.categories.find(c=>c.id===p.catId);return`<div class="prog-item ${p.suspended?'suspended':''}"><div class="pi-info"><div class="pi-name">${p.libelle} ${p.suspended?'⏸ Suspendu':''}</div><div class="pi-meta"><span class="badge badge-amber">${p.recurrence}</span> ${cat?cat.icon+' '+cat.name:''} ${p.debut} → ${p.fin}${p.notes?' 📝 '+p.notes:''}</div></div><div><div class="pi-amount ${p.type==='recette'?'text-green':'text-red'}">${fmtEur(p.montant)}</div><div style="display:flex;gap:4px;margin-top:6px;"><button class="btn btn-secondary btn-sm" onclick="openEditProgModal('${p.id}')">✏️</button><button class="btn btn-secondary btn-sm" onclick="suspendProg('${p.id}')">${p.suspended?'▶️':'⏸️'}</button><button class="btn btn-danger btn-sm" onclick="deleteProg('${p.id}')">🗑️</button></div></div></div>`;}).join('');
 }
 
 // ===== RÉPARTITION =====
@@ -745,102 +797,6 @@ function init(){
   ['scrollToAddForm','addRecette','removeRecette','openEditModal','closeEditModal','saveEdit','updateCatBudget','addDepense','removeDepense','openProgModal','closeProgModal','saveProg','suspendProg','deleteProg','onProgTypeChange','updateRepartType','updateRepartVal','applyRepartition','addCategory','updateCatName','updateCatIcon','deleteCategory','exportData','importDataClick','resetMonth','printBilan','navigateTo','addAuthorizedUser','removeAuthorizedUser','signInWithGoogle','signInWithEmail','signOut'].forEach(fn=>{window[fn]=eval(fn);});
 }
 init();
-// ===== FONCTIONS MANQUANTES =====
-
-// Répartition
-function updateRepartType(catId, type){
-  if(!state.repartitionConfig[catId]) state.repartitionConfig[catId] = {};
-  state.repartitionConfig[catId].type = type;
-  saveState();
-}
-
-function updateRepartVal(catId, val){
-  if(!state.repartitionConfig[catId]) state.repartitionConfig[catId] = {};
-  state.repartitionConfig[catId].val = val;
-  saveState();
-}
-
-function applyRepartition(){
-  let total = getTotalRecettes();
-  let md = getMonthData();
-
-  state.categories.forEach(c=>{
-    let cfg = state.repartitionConfig[c.id];
-    if(!cfg || !cfg.val) return;
-
-    let montant = cfg.type === 'pct'
-      ? (parseFloat(cfg.val)/100)*total
-      : parseFloat(cfg.val);
-
-    md.budgets[c.id] = Math.round(montant);
-  });
-
-  saveState();
-  renderDashboard();
-  showToast("Répartition appliquée","success");
-}
-
-// Catégories
-function addCategory(){
-  let name = document.getElementById('newCatName').value.trim();
-  let icon = document.getElementById('newCatIcon').value.trim() || '📁';
-  if(!name) return showToast("Nom requis","error");
-
-  state.categories.push({
-    id: name.toLowerCase().replace(/\s+/g,'_'),
-    name,
-    icon
-  });
-
-  saveState();
-  buildSidebar();
-  renderCatManager();
-}
-
-function deleteCategory(id){
-  if(!confirm("Supprimer ?")) return;
-  state.categories = state.categories.filter(c=>c.id!==id);
-  saveState();
-  buildSidebar();
-  renderCatManager();
-}
-
-// Export / Import
-function exportData(){
-  let blob = new Blob([JSON.stringify(state)], {type:'application/json'});
-  let a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'budget.json';
-  a.click();
-}
-
-function importDataClick(){
-  document.getElementById('importFileInput').click();
-}
-
-function importData(e){
-  let file = e.target.files[0];
-  let reader = new FileReader();
-  reader.onload = ()=>{
-    state = JSON.parse(reader.result);
-    saveState();
-    location.reload();
-  };
-  reader.readAsText(file);
-}
-
-// Reset mois
-function resetMonth(){
-  let key = getMonthKey();
-  state.months[key] = {recettes:[],depenses:{},budgets:{}};
-  saveState();
-  navigateTo('dashboard');
-}
-
-// Bilan
-function printBilan(){
-  window.print();
-}
 </script>
 </body>
 </html>
