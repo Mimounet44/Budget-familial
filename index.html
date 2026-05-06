@@ -502,21 +502,30 @@ function updateUserInfo(user){
 }
 
 auth.onAuthStateChanged(async user=>{
-  if(user){const allowed=await checkUserAllowed(user.email);if(!allowed){await auth.signOut();return;}await afterLogin(user);}
-  else{
-    // ✅ Retour après redirect mobile (connexion Google sur iOS/Android)
-    auth.getRedirectResult().then(async (result) => {
+  if(user){
+    // ✅ Session active — on fait confiance à Firebase, pas de re-vérification Firestore
+    // qui peut échouer sur mobile et provoquer un "accès refusé" injustifié
+    await afterLogin(user);
+  } else {
+    // Pas de session → vérifier si on revient d'un redirect Google (mobile)
+    try {
+      const result = await auth.getRedirectResult();
       if (result && result.user) {
         const allowed = await checkUserAllowed(result.user.email);
-        if(!allowed){ await auth.signOut(); return; }
+        if(!allowed){
+          await auth.signOut();
+          document.getElementById('loginScreen').classList.add('active');
+          document.getElementById('loginError').textContent = '❌ Accès refusé. Votre e-mail n\'est pas autorisé.';
+          return;
+        }
         await afterLogin(result.user);
       } else {
         document.getElementById('loginScreen').classList.add('active');
       }
-    }).catch(e => {
+    } catch(e) {
       console.warn('getRedirectResult:', e);
       document.getElementById('loginScreen').classList.add('active');
-    });
+    }
   }
 });
 
