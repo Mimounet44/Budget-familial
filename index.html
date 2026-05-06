@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Budget Familial - Version Mobile</title>
-<style>
-/* Polices système — pas de dépendance réseau */
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <style>
 :root {
   --green:#2d6a4f;--green-light:#52b788;--green-pale:#d8f3dc;
@@ -18,7 +20,7 @@
   --white:#ffffff;
   --shadow-sm:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.1);
   --radius:12px;--radius-sm:8px;
-  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--mono:'SF Mono','Roboto Mono','Courier New',monospace;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:var(--font);background:#eef1f5;min-height:100vh;color:var(--grey-800);font-size:14px;}
@@ -196,7 +198,25 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 </head>
 <body>
 
-<!-- LOGIN supprimé — accès direct local -->
+<!-- LOGIN -->
+<div id="loginScreen" class="active">
+  <div class="login-box">
+    <div class="login-logo">💰</div>
+    <h1>Budget Familial</h1>
+    <p>Connectez-vous pour accéder à votre budget</p>
+    <button class="btn-google" onclick="signInWithGoogle()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Connexion avec Google
+    </button>
+    <div class="login-divider">ou avec votre adresse e-mail</div>
+    <div class="login-email-form">
+      <input type="email" id="loginEmail" placeholder="Adresse e-mail" autocomplete="email">
+      <input type="password" id="loginPassword" placeholder="Mot de passe" autocomplete="current-password">
+      <button class="btn-login-email" onclick="signInWithEmail()">Se connecter</button>
+    </div>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
 
 <div class="mobile-header">
   <button class="hamburger" id="hamburgerBtn">☰</button>
@@ -214,6 +234,7 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
   <div class="month-nav"><select id="monthSelectMobile"></select><select id="yearSelectMobile"></select></div>
   <div id="mobileNavItems"></div>
   <div class="sidebar-footer">
+    <button id="authBtnMobile" onclick="signInWithGoogle()">🔑 Connexion Google</button>
     <button onclick="exportData()">💾 Export local</button>
     <button onclick="importDataClick()">📂 Import local</button>
     <button onclick="if(confirm('Réinitialiser le mois ?')) resetMonth()">🔄 Reset mois</button>
@@ -228,6 +249,7 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
   <div class="month-nav"><select id="monthSelectDesktop"></select><select id="yearSelectDesktop"></select></div>
   <div id="desktopNavItems"></div>
   <div class="sidebar-footer">
+    <button id="authBtnDesktop" onclick="signInWithGoogle()">🔑 Connexion Google</button>
     <button onclick="exportData()">💾 Export local</button>
     <button onclick="importDataClick()">📂 Import local</button>
     <button onclick="if(confirm('Réinitialiser le mois ?')) resetMonth()">🔄 Reset mois</button>
@@ -298,8 +320,11 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 <input type="file" id="importFileInput" accept=".json" style="display:none">
 
 <script>
-// ===== VERSION LOCALE SANS FIREBASE =====
-// Toutes les données sont sauvegardées dans localStorage du navigateur.
+const firebaseConfig={apiKey:"AIzaSyB7xBajLC9cMDMNDyWnM-495uivwKsg3po",authDomain:"budget-familial-99207.firebaseapp.com",databaseURL:"https://budget-familial-99207-default-rtdb.europe-west1.firebasedatabase.app",projectId:"budget-familial-99207",storageBucket:"budget-familial-99207.firebasestorage.app",messagingSenderId:"697097113241",appId:"1:697097113241:web:24575cfaf92119bb7df208"};
+firebase.initializeApp(firebaseConfig);
+// ✅ db et auth initialisés AVANT tout appel
+const db=firebase.firestore();
+const auth=firebase.auth();
 
 const MONTHS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
@@ -325,7 +350,7 @@ const defaultCategories=[
 
 let state={categories:[],programmations:[],repartitionConfig:{},months:{},suggestions:{}};
 let currentMonth=new Date().getMonth(),currentYear=new Date().getFullYear(),currentCat=null,currentPage='dashboard';
-let saveTimeout=null,editingCtx=null;
+let saveTimeout=null,editingCtx=null,currentUser=null,isAdmin=false;
 
 function getMonthKey(){return `${currentYear}-${currentMonth}`;}
 function getPrevMonthKey(){let y=currentYear,m=currentMonth-1;if(m<0){m=11;y--;}return `${y}-${m}`;}
@@ -368,8 +393,9 @@ function getFullDepenses(catId){let md=getMonthData(),prog=getProgrammedForMonth
 function getTotalDepensesCat(catId){let txs=getFullDepenses(catId);if(catId==='medical')return txs.reduce((s,t)=>t.txType==='remboursement'?s-t.montant:s+t.montant,0);return txs.reduce((s,t)=>s+t.montant,0);}
 function getTotalRecettes(){return getFullRecettes().reduce((s,r)=>s+r.montant,0);}
 
-function saveState(){localStorage.setItem('budgetFamilial_v5',JSON.stringify(state));}
-function refreshAll(){if(currentCat)renderCatPage(currentCat);else navigateTo(currentPage);}
+async function saveStateToCloud(){const user=auth.currentUser;if(!user)return;try{await db.collection('budgets').doc(user.uid).set({data:state,lastUpdated:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){console.warn(e);}}
+async function saveState(){localStorage.setItem('budgetFamilial_v5',JSON.stringify(state));if(saveTimeout)clearTimeout(saveTimeout);saveTimeout=setTimeout(()=>saveStateToCloud(),500);}
+async function loadStateFromCloud(userId){try{const doc=await db.collection('budgets').doc(userId).get();if(doc.exists){state={...state,...doc.data().data};showToast('☁️ Données cloud chargées','success');return true;}}catch(e){console.warn(e);}return false;}
 
 function loadState(){
   try{const raw=localStorage.getItem('budgetFamilial_v5');if(raw)state={...state,...JSON.parse(raw)};}catch(e){}
@@ -382,22 +408,163 @@ function loadState(){
   Object.keys(state.months).forEach(key=>{let md=state.months[key];if(!md.depenses)md.depenses={};if(!md.budgets)md.budgets={};if(!md.recettes)md.recettes=[];state.categories.forEach(c=>{if(!md.depenses[c.id])md.depenses[c.id]=[];});});
 }
 
-// ===== AUTH (désactivé — version locale) =====
-function signInWithGoogle(){showToast('Version locale — pas de connexion requise','success');}
-function signInWithEmail(){showToast('Version locale — pas de connexion requise','success');}
-function signOut(){}
-function updateAuthButtons(){}
-function updateUserInfo(){}
-function addAuthorizedUser(){showToast('Fonctionnalité cloud désactivée','error');}
-function removeAuthorizedUser(){showToast('Fonctionnalité cloud désactivée','error');}
-function renderAuthorizedUsers(){}
+// ===== AUTH =====
+async function signInWithGoogle(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    let result;
+
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+      // 👉 MOBILE → redirect
+      await auth.signInWithRedirect(provider);
+      return;
+    } else {
+      // 👉 DESKTOP → popup
+      result = await auth.signInWithPopup(provider);
+    }
+
+    const allowed = await checkUserAllowed(result.user.email);
+    if(!allowed){
+      await auth.signOut();
+      document.getElementById('loginError').textContent = "❌ Accès refusé";
+      return;
+    }
+
+    await afterLogin(result.user);
+
+  } catch(e){
+    document.getElementById('loginError').textContent = 'Erreur: ' + e.message;
+  }
+}
+
+async function signInWithEmail(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  if(!email||!password){document.getElementById('loginError').textContent='E-mail et mot de passe requis.';return;}
+  document.getElementById('loginError').textContent='';
+  try{
+    const allowed=await checkUserAllowed(email);
+    if(!allowed){document.getElementById('loginError').textContent='❌ Accès refusé. Votre e-mail n\'est pas autorisé.';return;}
+    let result;
+    try{result=await auth.signInWithEmailAndPassword(email,password);}
+    catch(e2){
+      if(e2.code==='auth/user-not-found'||e2.code==='auth/invalid-credential'){
+        result=await auth.createUserWithEmailAndPassword(email,password);
+      }else throw e2;
+    }
+    await afterLogin(result.user);
+  }catch(e){document.getElementById('loginError').textContent='Erreur: '+e.message;}
+}
+
+async function checkUserAllowed(email){
+  try{
+    const docRef=db.collection('settings').doc('authorizedUsers');
+    const doc=await docRef.get();
+    if(!doc.exists){
+      await docRef.set({users:[{email:email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
+      return true;
+    }
+    const users=doc.data().users||[];
+    return users.some(u=>u.email.toLowerCase()===email.toLowerCase());
+  }catch(e){console.warn(e);return true;}
+}
+
+async function afterLogin(user){
+  currentUser=user;
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('loginError').textContent='';
+  showToast(`👋 Bonjour ${user.displayName||user.email} !`,'success');
+  updateAuthButtons(user);updateUserInfo(user);
+  await loadStateFromCloud(user.uid);
+  await checkAdminRole(user.email);
+  buildSidebar();
+  if(currentCat)renderCatPage(currentCat);else navigateTo(currentPage);
+}
+
+async function checkAdminRole(email){
+  try{const doc=await db.collection('settings').doc('authorizedUsers').get();if(doc.exists){const users=doc.data().users||[];const me=users.find(u=>u.email.toLowerCase()===email.toLowerCase());isAdmin=me&&me.role==='admin';}}catch(e){isAdmin=false;}
+}
+
+async function signOut(){await auth.signOut();currentUser=null;isAdmin=false;document.getElementById('loginScreen').classList.add('active');document.getElementById('loginEmail').value='';document.getElementById('loginPassword').value='';updateAuthButtons(null);updateUserInfo(null);}
+
+function updateAuthButtons(user){
+  const d=document.getElementById('authBtnDesktop'),m=document.getElementById('authBtnMobile');
+  if(user){d.innerHTML='🚪 Se déconnecter';d.onclick=signOut;m.innerHTML='🚪 Se déconnecter';m.onclick=signOut;}
+  else{d.innerHTML='🔑 Connexion Google';d.onclick=signInWithGoogle;m.innerHTML='🔑 Connexion Google';m.onclick=signInWithGoogle;}
+}
+
+function updateUserInfo(user){
+  const id=document.getElementById('userInfoDesktop'),im=document.getElementById('userInfoMobile');
+  if(user){document.getElementById('userNameDesktop').textContent=user.displayName||'👤 Utilisateur';document.getElementById('userEmailDesktop').textContent=user.email;document.getElementById('userNameMobile').textContent=user.displayName||'👤 Utilisateur';document.getElementById('userEmailMobile').textContent=user.email;id.style.display='block';im.style.display='block';}
+  else{id.style.display='none';im.style.display='none';}
+}
+
+auth.onAuthStateChanged(async user=>{
+  if(user){const allowed=await checkUserAllowed(user.email);if(!allowed){await auth.signOut();return;}await afterLogin(user);}
+  else{
+    // ✅ Gestion du retour après redirect mobile
+    auth.getRedirectResult().then(async (result) => {
+      if (result && result.user) {
+        const allowed = await checkUserAllowed(result.user.email);
+        if(!allowed){ await auth.signOut(); return; }
+        await afterLogin(result.user);
+      } else {
+        document.getElementById('loginScreen').classList.add('active');
+      }
+    }).catch(e => {
+      console.warn('getRedirectResult error:', e);
+      document.getElementById('loginScreen').classList.add('active');
+    });
+  }
+});
+
+// ===== ADMIN =====
+async function addAuthorizedUser(){
+  if(!isAdmin)return showToast('Accès réservé aux admins','error');
+  const email=document.getElementById('newUserEmail').value.trim().toLowerCase();
+  const role=document.getElementById('newUserRole').value;
+  if(!email)return showToast('E-mail requis','error');
+  try{
+    const docRef=db.collection('settings').doc('authorizedUsers');
+    const doc=await docRef.get();
+    let users=doc.exists?(doc.data().users||[]):[];
+    if(users.some(u=>u.email===email))return showToast('Déjà autorisé','error');
+    users.push({email,role,addedAt:new Date().toISOString()});
+    await docRef.set({users});
+    document.getElementById('newUserEmail').value='';
+    showToast(`✅ ${email} autorisé`,'success');
+    renderAuthorizedUsers();
+  }catch(e){showToast('Erreur: '+e.message,'error');}
+}
+
+async function removeAuthorizedUser(email){
+  if(!isAdmin)return showToast('Accès réservé aux admins','error');
+  if(!confirm(`Révoquer l'accès de ${email} ?`))return;
+  try{
+    const docRef=db.collection('settings').doc('authorizedUsers');
+    const doc=await docRef.get();let users=doc.exists?(doc.data().users||[]):[];
+    users=users.filter(u=>u.email!==email);
+    await docRef.set({users});showToast(`❌ ${email} retiré`,'warning');renderAuthorizedUsers();
+  }catch(e){showToast('Erreur: '+e.message,'error');}
+}
+
+async function renderAuthorizedUsers(){
+  const list=document.getElementById('authorizedUsersList');if(!list)return;
+  if(!isAdmin){list.innerHTML='<li style="color:var(--grey-400)">Accès réservé aux administrateurs.</li>';return;}
+  try{
+    const doc=await db.collection('settings').doc('authorizedUsers').get();
+    const users=doc.exists?(doc.data().users||[]):[];
+    if(!users.length){list.innerHTML='<li style="color:var(--grey-400);font-size:0.85rem;">Aucun utilisateur</li>';return;}
+    list.innerHTML=users.map(u=>`<li><div><div class="auth-user-email">${u.email}</div><div style="font-size:0.65rem;color:var(--grey-400);">Ajouté le ${u.addedAt?new Date(u.addedAt).toLocaleDateString('fr-FR'):'?'}</div></div><div style="display:flex;align-items:center;gap:8px;"><span class="auth-user-role ${u.role==='admin'?'admin':''}">${u.role}</span>${currentUser&&u.email!==currentUser.email?`<button class="btn btn-danger btn-sm" onclick="removeAuthorizedUser('${u.email}')">✕</button>`:''}</div></li>`).join('');
+  }catch(e){list.innerHTML='<li style="color:var(--red);">Erreur de chargement</li>';}
+}
 
 // ===== SIDEBAR =====
 function buildSidebar(){
   const d=document.getElementById('desktopNavItems'),m=document.getElementById('mobileNavItems');if(!d)return;
   let html=`<div class="nav-section-label">📌 Vue d'ensemble</div><div class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></div><div class="nav-item" data-page="recettes"><span class="nav-icon">💰</span><span class="nav-label">Recettes</span><span class="nav-badge" id="bdg-rec-d">0€</span></div><div class="nav-section-label">📂 Dépenses</div>`;
   state.categories.forEach(c=>{html+=`<div class="nav-item" data-cat="${c.id}"><span class="nav-icon">${c.icon}</span><span class="nav-label">${c.name}</span><span class="nav-badge" id="bdg-${c.id}-d">0€</span></div>`;});
-  html+=`<div class="nav-section-label">🛠️ Outils</div><div class="nav-item" data-page="programmation"><span class="nav-icon">🗓️</span><span class="nav-label">Programmations</span></div><div class="nav-item" data-page="repartition"><span class="nav-icon">📐</span><span class="nav-label">Répartition</span></div><div class="nav-item" data-page="bilan"><span class="nav-icon">📋</span><span class="nav-label">Bilan</span></div><div class="nav-item" data-page="categories"><span class="nav-icon">⚙️</span><span class="nav-label">Catégories</span></div>`;
+  html+=`<div class="nav-section-label">🛠️ Outils</div><div class="nav-item" data-page="programmation"><span class="nav-icon">🗓️</span><span class="nav-label">Programmations</span></div><div class="nav-item" data-page="repartition"><span class="nav-icon">📐</span><span class="nav-label">Répartition</span></div><div class="nav-item" data-page="bilan"><span class="nav-icon">📋</span><span class="nav-label">Bilan</span></div><div class="nav-item" data-page="categories"><span class="nav-icon">⚙️</span><span class="nav-label">Catégories</span></div>${isAdmin?'<div class="nav-item" data-page="admin"><span class="nav-icon">🔐</span><span class="nav-label">Accès</span></div>':''}`;
   d.innerHTML=html;
   m.innerHTML=html.replace(/id="bdg-([^"]+)-d"/g,'id="bdg-$1-m"');
   document.querySelectorAll('#desktopNavItems .nav-item[data-page],#mobileNavItems .nav-item[data-page]').forEach(el=>{el.onclick=()=>{navigateTo(el.dataset.page);closeMobileSidebar();};});
@@ -660,7 +827,7 @@ function init(){
   buildSidebar();navigateTo('dashboard');
   document.getElementById('importFileInput').onchange=importData;
   // Expose globals
-  ['scrollToAddForm','addRecette','removeRecette','openEditModal','closeEditModal','saveEdit','updateCatBudget','addDepense','removeDepense','openProgModal','closeProgModal','saveProg','suspendProg','deleteProg','onProgTypeChange','updateRepartType','updateRepartVal','applyRepartition','addCategory','updateCatName','updateCatIcon','deleteCategory','exportData','importDataClick','resetMonth','printBilan','navigateTo','addAuthorizedUser','removeAuthorizedUser','signInWithGoogle','signInWithEmail','signOut','refreshAll'].forEach(fn=>{window[fn]=eval(fn);});
+  ['scrollToAddForm','addRecette','removeRecette','openEditModal','closeEditModal','saveEdit','updateCatBudget','addDepense','removeDepense','openProgModal','closeProgModal','saveProg','suspendProg','deleteProg','onProgTypeChange','updateRepartType','updateRepartVal','applyRepartition','addCategory','updateCatName','updateCatIcon','deleteCategory','exportData','importDataClick','resetMonth','printBilan','navigateTo','addAuthorizedUser','removeAuthorizedUser','signInWithGoogle','signInWithEmail','signOut'].forEach(fn=>{window[fn]=eval(fn);});
 }
 init();
 </script>
