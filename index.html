@@ -441,16 +441,31 @@ async function signInWithEmail(){
 }
 
 async function checkUserAllowed(email){
+  // Tente de vérifier dans Firestore, mais ne bloque JAMAIS si ça échoue
   try{
     const docRef=db.collection('settings').doc('authorizedUsers');
     const doc=await docRef.get();
     if(!doc.exists){
+      // Premier utilisateur → devient admin automatiquement
       await docRef.set({users:[{email:email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
       return true;
     }
     const users=doc.data().users||[];
-    return users.some(u=>u.email.toLowerCase()===email.toLowerCase());
-  }catch(e){console.warn(e);return true;}
+    const found=users.some(u=>u.email.toLowerCase()===email.toLowerCase());
+    if(!found){
+      // Ajoute automatiquement si liste vide, sinon refuse
+      if(users.length===0){
+        await docRef.set({users:[{email:email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }catch(e){
+    // ⚠️ Firestore inaccessible (permissions, réseau) → on laisse passer
+    console.warn('checkUserAllowed failed, allowing login:', e.message);
+    return true;
+  }
 }
 
 async function afterLogin(user){
@@ -487,18 +502,20 @@ function updateUserInfo(user){
 document.addEventListener('DOMContentLoaded', () => {
 auth.onAuthStateChanged(async user=>{
   if(user){
+    // Utilisateur connecté → accès direct, sans vérification Firestore bloquante
     await afterLogin(user);
   } else {
     try {
       const result = await auth.getRedirectResult();
       if (result && result.user) {
-        const allowed = await checkUserAllowed(result.user.email);
-        if(!allowed){
-          await auth.signOut();
-          document.getElementById('loginScreen').classList.add('active');
-          document.getElementById('loginError').textContent = '❌ Accès refusé. Votre e-mail n\'est pas autorisé.';
-          return;
-        }
+        // Retour après redirect Google → enregistre l'utilisateur si nouveau
+        try {
+          const docRef=db.collection('settings').doc('authorizedUsers');
+          const doc=await docRef.get();
+          if(!doc.exists){
+            await docRef.set({users:[{email:result.user.email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
+          }
+        } catch(e){ console.warn('init user doc:', e.message); }
         await afterLogin(result.user);
       } else {
         document.getElementById('loginScreen').classList.add('active');
