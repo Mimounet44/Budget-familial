@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Budget Familial - Version Mobile</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -197,6 +198,7 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 </style>
 </head>
 <body>
+<div id="toast"></div>
 
 <!-- LOGIN -->
 <div id="loginScreen" class="active">
@@ -322,7 +324,7 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 <script>
 const firebaseConfig={apiKey:"AIzaSyB7xBajLC9cMDMNDyWnM-495uivwKsg3po",authDomain:"budget-familial-99207.firebaseapp.com",databaseURL:"https://budget-familial-99207-default-rtdb.europe-west1.firebasedatabase.app",projectId:"budget-familial-99207",storageBucket:"budget-familial-99207.firebasestorage.app",messagingSenderId:"697097113241",appId:"1:697097113241:web:24575cfaf92119bb7df208"};
 firebase.initializeApp(firebaseConfig);
-// ✅ db et auth initialisés AVANT tout appel
+// ✅ db et auth initialisés avant tout appel
 const db=firebase.firestore();
 const auth=firebase.auth();
 
@@ -357,7 +359,7 @@ function getPrevMonthKey(){let y=currentYear,m=currentMonth-1;if(m<0){m=11;y--;}
 function uid(){return Date.now()+'-'+Math.random().toString(36).substr(2,6);}
 function fmtEur(n){return(Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
 function toDateInput(d){return d.toISOString().split('T')[0];}
-function showToast(msg,type=''){let el=document.getElementById('toast');el.textContent=msg;el.className='show '+type;setTimeout(()=>el.className='',2500);}
+function showToast(msg,type=''){let el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.className='show '+type;setTimeout(()=>el.className='',2500);}
 
 function getMonthData(){let key=getMonthKey();if(!state.months[key])state.months[key]={recettes:[],depenses:{},budgets:{}};let md=state.months[key];state.categories.forEach(c=>{if(!md.depenses[c.id])md.depenses[c.id]=[];});return md;}
 
@@ -502,7 +504,7 @@ function updateUserInfo(user){
 auth.onAuthStateChanged(async user=>{
   if(user){const allowed=await checkUserAllowed(user.email);if(!allowed){await auth.signOut();return;}await afterLogin(user);}
   else{
-    // ✅ Gestion du retour après redirect mobile
+    // ✅ Retour après redirect mobile (connexion Google sur iOS/Android)
     auth.getRedirectResult().then(async (result) => {
       if (result && result.user) {
         const allowed = await checkUserAllowed(result.user.email);
@@ -512,7 +514,7 @@ auth.onAuthStateChanged(async user=>{
         document.getElementById('loginScreen').classList.add('active');
       }
     }).catch(e => {
-      console.warn('getRedirectResult error:', e);
+      console.warn('getRedirectResult:', e);
       document.getElementById('loginScreen').classList.add('active');
     });
   }
