@@ -322,6 +322,16 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 <script>
 const firebaseConfig={apiKey:"AIzaSyB7xBajLC9cMDMNDyWnM-495uivwKsg3po",authDomain:"budget-familial-99207.firebaseapp.com",databaseURL:"https://budget-familial-99207-default-rtdb.europe-west1.firebasedatabase.app",projectId:"budget-familial-99207",storageBucket:"budget-familial-99207.firebasestorage.app",messagingSenderId:"697097113241",appId:"1:697097113241:web:24575cfaf92119bb7df208"};
 firebase.initializeApp(firebaseConfig);
+auth.getRedirectResult().then(async (result) => {
+  if (result.user) {
+    const allowed = await checkUserAllowed(result.user.email);
+    if(!allowed){
+      await auth.signOut();
+      return;
+    }
+    await afterLogin(result.user);
+  }
+}).catch(e => console.warn(e));
 const db=firebase.firestore();
 const auth=firebase.auth();
 
@@ -409,13 +419,31 @@ function loadState(){
 
 // ===== AUTH =====
 async function signInWithGoogle(){
-  const provider=new firebase.auth.GoogleAuthProvider();
-  try{
-    const result=await auth.signInWithPopup(provider);
-    const allowed=await checkUserAllowed(result.user.email);
-    if(!allowed){await auth.signOut();document.getElementById('loginError').textContent='❌ Accès refusé. Votre e-mail n\'est pas autorisé.';return;}
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    let result;
+
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+      // 👉 MOBILE → redirect
+      await auth.signInWithRedirect(provider);
+      return;
+    } else {
+      // 👉 DESKTOP → popup
+      result = await auth.signInWithPopup(provider);
+    }
+
+    const allowed = await checkUserAllowed(result.user.email);
+    if(!allowed){
+      await auth.signOut();
+      document.getElementById('loginError').textContent = "❌ Accès refusé";
+      return;
+    }
+
     await afterLogin(result.user);
-  }catch(e){document.getElementById('loginError').textContent='Erreur: '+e.message;}
+
+  } catch(e){
+    document.getElementById('loginError').textContent = 'Erreur: ' + e.message;
+  }
 }
 
 async function signInWithEmail(){
