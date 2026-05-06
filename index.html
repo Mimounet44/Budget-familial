@@ -414,26 +414,8 @@ function loadState(){
 async function signInWithGoogle(){
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
-    let result;
-
-    if (/Mobi|Android/i.test(navigator.userAgent)) {
-      // 👉 MOBILE → redirect
-      await auth.signInWithRedirect(provider);
-      return;
-    } else {
-      // 👉 DESKTOP → popup
-      result = await auth.signInWithPopup(provider);
-    }
-
-    const allowed = await checkUserAllowed(result.user.email);
-    if(!allowed){
-      await auth.signOut();
-      document.getElementById('loginError').textContent = "❌ Accès refusé";
-      return;
-    }
-
-    await afterLogin(result.user);
-
+    // ✅ Toujours redirect (popup bloqué par GitHub Pages à cause du header COOP)
+    await auth.signInWithRedirect(provider);
   } catch(e){
     document.getElementById('loginError').textContent = 'Erreur: ' + e.message;
   }
@@ -501,13 +483,12 @@ function updateUserInfo(user){
   else{id.style.display='none';im.style.display='none';}
 }
 
+// ✅ On attend que le DOM soit prêt avant d'écouter Firebase Auth
+document.addEventListener('DOMContentLoaded', () => {
 auth.onAuthStateChanged(async user=>{
   if(user){
-    // ✅ Session active — on fait confiance à Firebase, pas de re-vérification Firestore
-    // qui peut échouer sur mobile et provoquer un "accès refusé" injustifié
     await afterLogin(user);
   } else {
-    // Pas de session → vérifier si on revient d'un redirect Google (mobile)
     try {
       const result = await auth.getRedirectResult();
       if (result && result.user) {
@@ -528,6 +509,7 @@ auth.onAuthStateChanged(async user=>{
     }
   }
 });
+}); // fin DOMContentLoaded
 
 // ===== ADMIN =====
 async function addAuthorizedUser(){
