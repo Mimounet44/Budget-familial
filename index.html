@@ -145,6 +145,7 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--white);border-radius:20px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
 .modal-header,.modal-footer{padding:16px 20px;border-bottom:1px solid var(--grey-100);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;}
 .modal-footer{border-bottom:none;border-top:1px solid var(--grey-100);display:flex;gap:8px;justify-content:flex-end;}
 .modal-body{padding:20px;}
 .rep-table{width:100%;border-collapse:collapse;}
@@ -204,7 +205,7 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
     <div class="login-logo">💰</div>
     <h1>Budget Familial</h1>
     <p>Connectez-vous pour accéder à votre budget</p>
-    <button class="btn-google" onclick="signInWithGoogle()">
+    <button class="btn-google" id="googleSignInBtn">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Connexion avec Google
     </button>
@@ -212,7 +213,7 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
     <div class="login-email-form">
       <input type="email" id="loginEmail" placeholder="Adresse e-mail" autocomplete="email">
       <input type="password" id="loginPassword" placeholder="Mot de passe" autocomplete="current-password">
-      <button class="btn-login-email" onclick="signInWithEmail()">Se connecter</button>
+      <button class="btn-login-email" id="emailSignInBtn">Se connecter</button>
     </div>
     <div class="login-error" id="loginError"></div>
   </div>
@@ -234,10 +235,10 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
   <div class="month-nav"><select id="monthSelectMobile"></select><select id="yearSelectMobile"></select></div>
   <div id="mobileNavItems"></div>
   <div class="sidebar-footer">
-    <button id="authBtnMobile" onclick="signInWithGoogle()">🔑 Connexion Google</button>
-    <button onclick="exportData()">💾 Export local</button>
-    <button onclick="importDataClick()">📂 Import local</button>
-    <button onclick="if(confirm('Réinitialiser le mois ?')) resetMonth()">🔄 Reset mois</button>
+    <button id="authBtnMobile">🔑 Connexion Google</button>
+    <button id="exportBtnMobile">💾 Export local</button>
+    <button id="importBtnMobile">📂 Import local</button>
+    <button id="resetBtnMobile">🔄 Reset mois</button>
   </div>
 </div>
 <div class="desktop-sidebar">
@@ -249,43 +250,43 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
   <div class="month-nav"><select id="monthSelectDesktop"></select><select id="yearSelectDesktop"></select></div>
   <div id="desktopNavItems"></div>
   <div class="sidebar-footer">
-    <button id="authBtnDesktop" onclick="signInWithGoogle()">🔑 Connexion Google</button>
-    <button onclick="exportData()">💾 Export local</button>
-    <button onclick="importDataClick()">📂 Import local</button>
-    <button onclick="if(confirm('Réinitialiser le mois ?')) resetMonth()">🔄 Reset mois</button>
+    <button id="authBtnDesktop">🔑 Connexion Google</button>
+    <button id="exportBtnDesktop">💾 Export local</button>
+    <button id="importBtnDesktop">📂 Import local</button>
+    <button id="resetBtnDesktop">🔄 Reset mois</button>
   </div>
 </div>
 
 <div class="main-content">
   <div id="page-dashboard" class="page active">
-    <div class="topbar"><h2 id="dashboardTitle">Tableau de bord</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="refreshAll()">🔄 Actualiser</button><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimer</button><button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Programmer</button></div></div>
+    <div class="topbar"><h2 id="dashboardTitle">Tableau de bord</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" id="refreshDashboardBtn">🔄 Actualiser</button><button class="btn btn-secondary btn-sm" id="printDashboardBtn">🖨️ Imprimer</button><button class="btn btn-primary btn-sm" id="progDashboardBtn">+ Programmer</button></div></div>
     <div class="summary-grid" id="summaryGrid"></div>
     <div class="cat-grid" id="catGrid"></div>
   </div>
   <div id="page-recettes" class="page">
-    <div class="topbar"><h2>💰 Recettes</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="refreshAll()">🔄</button><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️</button><button class="btn btn-primary btn-sm" onclick="openProgModal('recette')">+ Programmer</button></div></div>
+    <div class="topbar"><h2>💰 Recettes</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" id="refreshRecettesBtn">🔄</button><button class="btn btn-secondary btn-sm" id="printRecettesBtn">🖨️</button><button class="btn btn-primary btn-sm" id="progRecettesBtn">+ Programmer</button></div></div>
     <div class="card"><div class="card-header"><h3>Ajouter une recette</h3></div><div class="card-body">
       <div class="form-row">
         <div class="form-group"><label>Libellé</label><input type="text" id="rec-libelle" list="sug-recettes" autocomplete="off"></div>
         <div class="form-group"><label>Montant (€)</label><input type="number" id="rec-montant" step="0.01"></div>
         <div class="form-group"><label>Date</label><input type="date" id="rec-date"></div>
-        <div class="form-group" style="flex:0;"><button class="btn btn-primary" onclick="addRecette()">Ajouter</button></div>
+        <div class="form-group" style="flex:0;"><button class="btn btn-primary" id="addRecetteBtn">Ajouter</button></div>
       </div>
       <datalist id="sug-recettes"></datalist>
     </div></div>
     <div class="card"><div class="card-header"><h3>Recettes du mois</h3><span class="font-mono text-green" id="totalRecettes">0,00 €</span></div><div class="card-body"><ul class="tx-list" id="listRecettes"></ul></div></div>
   </div>
   <div id="page-categorie" class="page">
-    <div class="topbar"><h2 id="catPageTitle">Catégorie</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="refreshAll()">🔄</button><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️</button><button class="btn btn-secondary btn-sm" onclick="openProgModal('depense',currentCat)">+ Programmer</button><button class="btn btn-primary btn-sm" onclick="scrollToAddForm()">+ Ajouter</button></div></div>
+    <div class="topbar"><h2 id="catPageTitle">Catégorie</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" id="refreshCatBtn">🔄</button><button class="btn btn-secondary btn-sm" id="printCatBtn">🖨️</button><button class="btn btn-secondary btn-sm" id="progCatBtn">+ Programmer</button><button class="btn btn-primary btn-sm" id="scrollToAddBtn">+ Ajouter</button></div></div>
     <div id="catBudgetContainer"></div>
     <div id="medicalSummaryBlock" style="display:none;" class="card"><div class="card-body"><div class="medical-summary"><div class="med-tile spent"><div class="med-val" id="med-depenses">0€</div><div class="med-lbl">Dépenses</div></div><div class="med-tile reimb"><div class="med-val" id="med-remb">0€</div><div class="med-lbl">Remboursements</div></div><div class="med-tile net"><div class="med-val" id="med-net">0€</div><div class="med-lbl">Coût net</div></div></div></div></div>
     <div class="card" id="addFormCard"><div class="card-header"><h3>Ajouter une transaction</h3></div><div class="card-body" id="addFormBody"></div></div>
     <div class="card"><div class="card-header"><h3>Transactions du mois</h3><span class="font-mono" id="catTotalLabel">0,00 €</span></div><div class="card-body"><ul class="tx-list" id="catTxList"></ul></div></div>
   </div>
-  <div id="page-programmation" class="page"><div class="topbar"><h2>🗓️ Programmation</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" onclick="refreshAll()">🔄 Actualiser</button><button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimer</button><button class="btn btn-primary btn-sm" onclick="openProgModal()">+ Nouvelle</button></div></div><div class="card"><div class="card-body" id="progListContainer"></div></div></div>
-  <div id="page-repartition" class="page"><div class="topbar"><h2>📐 Répartition des recettes</h2></div><div class="card"><div class="card-header"><h3>Configuration</h3><button class="btn btn-primary btn-sm" onclick="applyRepartition()">Appliquer</button></div><div class="card-body"><p>Recettes totales : <strong id="totalRevLabel">0 €</strong></p><table class="rep-table"><thead><tr><th>Catégorie</th><th>Type</th><th>Valeur</th><th>Calculé</th><th>Budget actuel</th></tr></thead><tbody id="repTableBody"></tbody><tfoot><tr><td colspan="2"><b>Total alloué</b></td><td class="mono" id="repTotalCalc">0€</td><td class="mono" id="repTotalBudget">0€</td></tr></tfoot></table></div></div></div>
-  <div id="page-bilan" class="page"><div class="topbar"><h2>📋 Bilan mensuel</h2><button class="btn btn-secondary btn-sm" onclick="printBilan()">🖨️ Imprimer</button></div><div id="bilanContent"></div></div>
-  <div id="page-categories" class="page"><div class="topbar"><h2>⚙️ Catégories</h2></div><div class="card"><div class="card-header"><h3>Ajouter</h3></div><div class="card-body"><div class="form-row"><div class="form-group"><label>Nom</label><input type="text" id="newCatName"></div><div class="form-group"><label>Icône</label><input type="text" id="newCatIcon" placeholder="🏷️" style="width:70px"></div><div class="form-group"><button class="btn btn-primary" onclick="addCategory()">Créer</button></div></div></div></div><div class="card"><div class="card-header"><h3>Liste</h3></div><div class="card-body" id="catManagerList"></div></div></div>
+  <div id="page-programmation" class="page"><div class="topbar"><h2>🗓️ Programmation</h2><div class="topbar-actions"><button class="btn btn-secondary btn-sm" id="refreshProgBtn">🔄 Actualiser</button><button class="btn btn-secondary btn-sm" id="printProgBtn">🖨️ Imprimer</button><button class="btn btn-primary btn-sm" id="newProgBtn">+ Nouvelle</button></div></div><div class="card"><div class="card-body" id="progListContainer"></div></div></div>
+  <div id="page-repartition" class="page"><div class="topbar"><h2>📐 Répartition des recettes</h2></div><div class="card"><div class="card-header"><h3>Configuration</h3><button class="btn btn-primary btn-sm" id="applyRepartBtn">Appliquer</button></div><div class="card-body"><p>Recettes totales : <strong id="totalRevLabel">0 €</strong></p><table class="rep-table"><thead><tr><th>Catégorie</th><th>Type</th><th>Valeur</th><th>Calculé</th><th>Budget actuel</th></tr></thead><tbody id="repTableBody"></tbody><tfoot><tr><td colspan="2"><b>Total alloué</b></td><td class="mono" id="repTotalCalc">0€</td><td class="mono" id="repTotalBudget">0€</td></tr></tfoot></table></div></div></div>
+  <div id="page-bilan" class="page"><div class="topbar"><h2>📋 Bilan mensuel</h2><button class="btn btn-secondary btn-sm" id="printBilanBtn">🖨️ Imprimer</button></div><div id="bilanContent"></div></div>
+  <div id="page-categories" class="page"><div class="topbar"><h2>⚙️ Catégories</h2></div><div class="card"><div class="card-header"><h3>Ajouter</h3></div><div class="card-body"><div class="form-row"><div class="form-group"><label>Nom</label><input type="text" id="newCatName"></div><div class="form-group"><label>Icône</label><input type="text" id="newCatIcon" placeholder="🏷️" style="width:70px"></div><div class="form-group"><button class="btn btn-primary" id="addCategoryBtn">Créer</button></div></div></div></div><div class="card"><div class="card-header"><h3>Liste</h3></div><div class="card-body" id="catManagerList"></div></div></div>
   <div id="page-admin" class="page">
     <div class="topbar"><h2>🔐 Gestion des accès</h2></div>
     <div class="card">
@@ -294,7 +295,7 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
         <div class="form-row">
           <div class="form-group"><label>Adresse e-mail</label><input type="email" id="newUserEmail" placeholder="utilisateur@gmail.com"></div>
           <div class="form-group"><label>Rôle</label><select id="newUserRole"><option value="viewer">Lecteur</option><option value="editor">Éditeur</option><option value="admin">Admin</option></select></div>
-          <div class="form-group" style="flex:0;"><button class="btn btn-primary" onclick="addAuthorizedUser()">Autoriser</button></div>
+          <div class="form-group" style="flex:0;"><button class="btn btn-primary" id="addUserBtn">Autoriser</button></div>
         </div>
         <p style="font-size:0.75rem;color:var(--grey-600);margin-top:8px;">ℹ️ L'utilisateur pourra se connecter avec son compte Google ou e-mail/mot de passe depuis cette adresse e-mail.</p>
       </div>
@@ -307,37 +308,40 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 </div>
 
 <!-- MODALS -->
-<div class="modal-overlay" id="progModalOverlay" onclick="if(event.target===this) closeProgModal()">
-  <div class="modal"><div class="modal-header"><h3>📅 Programmer</h3><button class="btn btn-secondary btn-sm" onclick="closeProgModal()">✕</button></div><div class="modal-body"><div class="form-row"><div class="form-group"><label>Type</label><select id="prog-type" onchange="onProgTypeChange()"><option value="depense">Dépense</option><option value="recette">Recette</option></select></div><div class="form-group" id="progCatGroup"><label>Catégorie</label><select id="prog-cat"></select></div></div><div class="form-group"><label>Libellé</label><input type="text" id="prog-libelle"></div><div class="form-row"><div class="form-group"><label>Montant</label><input type="number" id="prog-montant" step="0.01"></div><div class="form-group"><label>Récurrence</label><select id="prog-recurrence"><option value="unique">Unique</option><option value="mensuel">Mensuel</option><option value="trimestriel">Trimestriel</option><option value="annuel">Annuel</option></select></div></div><div class="form-row"><div class="form-group"><label>Début</label><input type="date" id="prog-debut"></div><div class="form-group"><label>Fin</label><input type="date" id="prog-fin"></div></div><div class="form-group"><label>Notes</label><textarea id="prog-notes" rows="2"></textarea></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeProgModal()">Annuler</button><button class="btn btn-primary" onclick="saveProg()">Enregistrer</button></div></div>
+<div class="modal-overlay" id="progModalOverlay">
+  <div class="modal"><div class="modal-header"><h3>📅 Programmer</h3><button class="btn btn-secondary btn-sm closeProgModalBtn">✕</button></div><div class="modal-body"><div class="form-row"><div class="form-group"><label>Type</label><select id="prog-type"><option value="depense">Dépense</option><option value="recette">Recette</option></select></div><div class="form-group" id="progCatGroup"><label>Catégorie</label><select id="prog-cat"></select></div></div><div class="form-group"><label>Libellé</label><input type="text" id="prog-libelle"></div><div class="form-row"><div class="form-group"><label>Montant</label><input type="number" id="prog-montant" step="0.01"></div><div class="form-group"><label>Récurrence</label><select id="prog-recurrence"><option value="unique">Unique</option><option value="mensuel">Mensuel</option><option value="trimestriel">Trimestriel</option><option value="annuel">Annuel</option></select></div></div><div class="form-row"><div class="form-group"><label>Début</label><input type="date" id="prog-debut"></div><div class="form-group"><label>Fin</label><input type="date" id="prog-fin"></div></div><div class="form-group"><label>Notes</label><textarea id="prog-notes" rows="2"></textarea></div></div><div class="modal-footer"><button class="btn btn-secondary closeProgModalBtn">Annuler</button><button class="btn btn-primary" id="saveProgBtn">Enregistrer</button></div></div>
 </div>
-<div class="modal-overlay" id="editModalOverlay" onclick="if(event.target===this) closeEditModal()">
-  <div class="modal"><div class="modal-header"><h3>✏️ Modifier la transaction</h3><button class="btn btn-secondary btn-sm" onclick="closeEditModal()">✕</button></div><div class="modal-body" id="editModalBody"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeEditModal()">Annuler</button><button class="btn btn-primary" onclick="saveEdit()">Enregistrer</button></div></div>
+<div class="modal-overlay" id="editModalOverlay">
+  <div class="modal"><div class="modal-header"><h3>✏️ Modifier la transaction</h3><button class="btn btn-secondary btn-sm closeEditModalBtn">✕</button></div><div class="modal-body" id="editModalBody"></div><div class="modal-footer"><button class="btn btn-secondary closeEditModalBtn">Annuler</button><button class="btn btn-primary" id="saveEditBtn">Enregistrer</button></div></div>
 </div>
 
-<div class="modal-overlay" id="editProgModalOverlay" onclick="if(event.target===this) closeEditProgModal()">
-  <div class="modal"><div class="modal-header"><h3>✏️ Modifier la programmation</h3><button class="btn btn-secondary btn-sm" onclick="closeEditProgModal()">✕</button></div><div class="modal-body" id="editProgModalBody"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeEditProgModal()">Annuler</button><button class="btn btn-primary" onclick="saveEditProg()">Enregistrer</button></div></div>
+<div class="modal-overlay" id="editProgModalOverlay">
+  <div class="modal"><div class="modal-header"><h3>✏️ Modifier la programmation</h3><button class="btn btn-secondary btn-sm closeEditProgModalBtn">✕</button></div><div class="modal-body" id="editProgModalBody"></div><div class="modal-footer"><button class="btn btn-secondary closeEditProgModalBtn">Annuler</button><button class="btn btn-primary" id="saveEditProgBtn">Enregistrer</button></div></div>
 </div>
 <input type="file" id="importFileInput" accept=".json" style="display:none">
 
+<div id="toast"></div>
+
 <script>
-const firebaseConfig={apiKey:"AIzaSyB7xBajLC9cMDMNDyWnM-495uivwKsg3po",authDomain:"budget-familial-99207.firebaseapp.com",databaseURL:"https://budget-familial-99207-default-rtdb.europe-west1.firebasedatabase.app",projectId:"budget-familial-99207",storageBucket:"budget-familial-99207.firebasestorage.app",messagingSenderId:"697097113241",appId:"1:697097113241:web:24575cfaf92119bb7df208"};
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyB7xBajLC9cMDMNDyWnM-495uivwKsg3po",
+  authDomain: "budget-familial-99207.firebaseapp.com",
+  databaseURL: "https://budget-familial-99207-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "budget-familial-99207",
+  storageBucket: "budget-familial-99207.firebasestorage.app",
+  messagingSenderId: "697097113241",
+  appId: "1:697097113241:web:24575cfaf92119bb7df208"
+};
+
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-auth.getRedirectResult().then(async (result) => {
-  if (result.user) {
-    const allowed = await checkUserAllowed(result.user.email);
-    if(!allowed){
-      await auth.signOut();
-      return;
-    }
-    await afterLogin(result.user);
-  }
-}).catch(e => console.warn(e));
-const db=firebase.firestore();
-const auth=firebase.auth();
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-const MONTHS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
-const defaultCategories=[
+const defaultCategories = [
   {id:'alimentation',name:'Alimentation',icon:'🛒'},
   {id:'voiture',name:'Voiture',icon:'🚗'},
   {id:'medical',name:'Médical',icon:'🏥'},
@@ -357,473 +361,1333 @@ const defaultCategories=[
   {id:'liquide',name:'Liquide',icon:'💵'}
 ];
 
-let state={categories:[],programmations:[],repartitionConfig:{},months:{},suggestions:{}};
-let currentMonth=new Date().getMonth(),currentYear=new Date().getFullYear(),currentCat=null,currentPage='dashboard';
-let saveTimeout=null,editingCtx=null,currentUser=null,isAdmin=false;
+let state = {
+  categories: [],
+  programmations: [],
+  repartitionConfig: {},
+  months: {},
+  suggestions: {}
+};
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let currentCat = null;
+let currentPage = 'dashboard';
+let saveTimeout = null;
+let editingCtx = null;
+let currentUser = null;
+let isAdmin = false;
 
-function getMonthKey(){return `${currentYear}-${currentMonth}`;}
-function getPrevMonthKey(){let y=currentYear,m=currentMonth-1;if(m<0){m=11;y--;}return `${y}-${m}`;}
-function uid(){return Date.now()+'-'+Math.random().toString(36).substr(2,6);}
-function fmtEur(n){return(Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
-function toDateInput(d){return d.toISOString().split('T')[0];}
-function showToast(msg,type=''){let el=document.getElementById('toast');el.textContent=msg;el.className='show '+type;setTimeout(()=>el.className='',2500);}
+function getMonthKey() { return `${currentYear}-${currentMonth}`; }
+function getPrevMonthKey() {
+  let y = currentYear, m = currentMonth - 1;
+  if (m < 0) { m = 11; y--; }
+  return `${y}-${m}`;
+}
+function uid() { return Date.now() + '-' + Math.random().toString(36).substr(2, 6); }
+function fmtEur(n) { return (Math.round(n * 100) / 100).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €'; }
+function toDateInput(d) { return d.toISOString().split('T')[0]; }
+function showToast(msg, type = '') {
+  let el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  setTimeout(() => el.className = '', 2500);
+}
 
-function getMonthData(){let key=getMonthKey();if(!state.months[key])state.months[key]={recettes:[],depenses:{},budgets:{}};let md=state.months[key];state.categories.forEach(c=>{if(!md.depenses[c.id])md.depenses[c.id]=[];});return md;}
+function getMonthData() {
+  let key = getMonthKey();
+  if (!state.months[key]) {
+    state.months[key] = { recettes: [], depenses: {}, budgets: {} };
+  }
+  let md = state.months[key];
+  state.categories.forEach(c => {
+    if (!md.depenses[c.id]) md.depenses[c.id] = [];
+  });
+  return md;
+}
 
-function getCarryOver(catId){let prevKey=getPrevMonthKey();let prevData=state.months[prevKey];if(!prevData)return 0;let prevBudget=(prevData.budgets||{})[catId]||0;let prevDepenses=prevData.depenses[catId]||[];let prevSpent=(catId==='medical')?prevDepenses.reduce((s,t)=>t.txType==='remboursement'?s-t.montant:s+t.montant,0):prevDepenses.reduce((s,t)=>s+t.montant,0);return prevBudget-prevSpent;}
+function getCarryOver(catId) {
+  let prevKey = getPrevMonthKey();
+  let prevData = state.months[prevKey];
+  if (!prevData) return 0;
+  let prevBudget = (prevData.budgets || {})[catId] || 0;
+  let prevDepenses = prevData.depenses[catId] || [];
+  let prevSpent = (catId === 'medical') ? 
+    prevDepenses.reduce((s, t) => t.txType === 'remboursement' ? s - t.montant : s + t.montant, 0) : 
+    prevDepenses.reduce((s, t) => s + t.montant, 0);
+  return prevBudget - prevSpent;
+}
 
-function getEffectiveBudget(catId){let md=getMonthData();let currentBudget=(md.budgets||{})[catId]||0;return currentBudget+getCarryOver(catId);}
+function getEffectiveBudget(catId) {
+  let md = getMonthData();
+  let currentBudget = (md.budgets || {})[catId] || 0;
+  return currentBudget + getCarryOver(catId);
+}
 
-function getProgrammedForMonth(){
-  let result={recettes:[],depenses:{}};
-  state.categories.forEach(c=>result.depenses[c.id]=[]);
-  let mStart=new Date(currentYear,currentMonth,1),mEnd=new Date(currentYear,currentMonth+1,0);
-  state.programmations.forEach(p=>{
-    if(p.suspended)return;
-    let debut=new Date(p.debut),fin=new Date(p.fin);
-    if(debut>mEnd||fin<mStart)return;
-    let matches=false;
-    if(p.recurrence==='unique')matches=(debut.getMonth()===currentMonth&&debut.getFullYear()===currentYear);
-    else if(p.recurrence==='mensuel')matches=true;
-    else if(p.recurrence==='trimestriel'){let diff=(currentYear*12+currentMonth)-(debut.getFullYear()*12+debut.getMonth());matches=(diff>=0&&diff%3===0);}
-    else if(p.recurrence==='annuel')matches=(currentMonth===debut.getMonth()&&currentYear>=debut.getFullYear());
-    if(!matches)return;
-    let day=Math.min(debut.getDate(),new Date(currentYear,currentMonth+1,0).getDate());
-    let date=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    let tx={id:`prog_${p.id}`,libelle:p.libelle,montant:p.montant,date,isProgrammed:true,progId:p.id};
-    if(p.type==='recette')result.recettes.push(tx);
-    else result.depenses[p.catId].push({...tx,txType:'depense'});
+function getProgrammedForMonth() {
+  let result = { recettes: [], depenses: {} };
+  state.categories.forEach(c => result.depenses[c.id] = []);
+  let mStart = new Date(currentYear, currentMonth, 1);
+  let mEnd = new Date(currentYear, currentMonth + 1, 0);
+  state.programmations.forEach(p => {
+    if (p.suspended) return;
+    let debut = new Date(p.debut);
+    let fin = new Date(p.fin);
+    if (debut > mEnd || fin < mStart) return;
+    let matches = false;
+    if (p.recurrence === 'unique') matches = (debut.getMonth() === currentMonth && debut.getFullYear() === currentYear);
+    else if (p.recurrence === 'mensuel') matches = true;
+    else if (p.recurrence === 'trimestriel') {
+      let diff = (currentYear * 12 + currentMonth) - (debut.getFullYear() * 12 + debut.getMonth());
+      matches = (diff >= 0 && diff % 3 === 0);
+    } else if (p.recurrence === 'annuel') matches = (currentMonth === debut.getMonth() && currentYear >= debut.getFullYear());
+    if (!matches) return;
+    let day = Math.min(debut.getDate(), new Date(currentYear, currentMonth + 1, 0).getDate());
+    let date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    let tx = { id: `prog_${p.id}`, libelle: p.libelle, montant: p.montant, date: date, isProgrammed: true, progId: p.id };
+    if (p.type === 'recette') result.recettes.push(tx);
+    else result.depenses[p.catId].push({ ...tx, txType: 'depense' });
   });
   return result;
 }
 
-function getFullRecettes(){let md=getMonthData(),prog=getProgrammedForMonth();return[...md.recettes,...prog.recettes];}
-function getFullDepenses(catId){let md=getMonthData(),prog=getProgrammedForMonth();return[...(md.depenses[catId]||[]),...(prog.depenses[catId]||[])];}
-function getTotalDepensesCat(catId){let txs=getFullDepenses(catId);if(catId==='medical')return txs.reduce((s,t)=>t.txType==='remboursement'?s-t.montant:s+t.montant,0);return txs.reduce((s,t)=>s+t.montant,0);}
-function getTotalRecettes(){return getFullRecettes().reduce((s,r)=>s+r.montant,0);}
-
-async function saveStateToCloud(){const user=auth.currentUser;if(!user)return;try{await db.collection('budgets').doc(user.uid).set({data:state,lastUpdated:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){console.warn(e);}}
-async function saveState(){localStorage.setItem('budgetFamilial_v5',JSON.stringify(state));if(saveTimeout)clearTimeout(saveTimeout);saveTimeout=setTimeout(()=>saveStateToCloud(),500);}
-async function loadStateFromCloud(userId){try{const doc=await db.collection('budgets').doc(userId).get();if(doc.exists){state={...state,...doc.data().data};showToast('☁️ Données cloud chargées','success');return true;}}catch(e){console.warn(e);}return false;}
-
-function loadState(){
-  try{const raw=localStorage.getItem('budgetFamilial_v5');if(raw)state={...state,...JSON.parse(raw)};}catch(e){}
-  if(!state.categories||!state.categories.length)state.categories=JSON.parse(JSON.stringify(defaultCategories));
-  else{let existingIds=state.categories.map(c=>c.id);let newCats=defaultCategories.filter(c=>!existingIds.includes(c.id));state.categories=[...state.categories,...newCats];}
-  if(!state.months)state.months={};
-  if(!state.programmations)state.programmations=[];
-  if(!state.repartitionConfig)state.repartitionConfig={};
-  if(!state.suggestions)state.suggestions={};
-  Object.keys(state.months).forEach(key=>{let md=state.months[key];if(!md.depenses)md.depenses={};if(!md.budgets)md.budgets={};if(!md.recettes)md.recettes=[];state.categories.forEach(c=>{if(!md.depenses[c.id])md.depenses[c.id]=[];});});
+function getFullRecettes() {
+  let md = getMonthData();
+  let prog = getProgrammedForMonth();
+  return [...md.recettes, ...prog.recettes];
 }
 
-// ===== AUTH =====
-async function signInWithGoogle(){
+function getFullDepenses(catId) {
+  let md = getMonthData();
+  let prog = getProgrammedForMonth();
+  return [...(md.depenses[catId] || []), ...(prog.depenses[catId] || [])];
+}
+
+function getTotalDepensesCat(catId) {
+  let txs = getFullDepenses(catId);
+  if (catId === 'medical') return txs.reduce((s, t) => t.txType === 'remboursement' ? s - t.montant : s + t.montant, 0);
+  return txs.reduce((s, t) => s + t.montant, 0);
+}
+
+function getTotalRecettes() { return getFullRecettes().reduce((s, r) => s + r.montant, 0); }
+
+async function saveStateToCloud() {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    await db.collection('budgets').doc(user.uid).set({ data: state, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() });
+  } catch (e) { console.warn(e); }
+}
+
+async function saveState() {
+  localStorage.setItem('budgetFamilial_v5', JSON.stringify(state));
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => saveStateToCloud(), 500);
+}
+
+async function loadStateFromCloud(userId) {
+  try {
+    const doc = await db.collection('budgets').doc(userId).get();
+    if (doc.exists) {
+      state = { ...state, ...doc.data().data };
+      showToast('☁️ Données cloud chargées', 'success');
+      return true;
+    }
+  } catch (e) { console.warn(e); }
+  return false;
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('budgetFamilial_v5');
+    if (raw) state = { ...state, ...JSON.parse(raw) };
+  } catch (e) {}
+  if (!state.categories || !state.categories.length) {
+    state.categories = JSON.parse(JSON.stringify(defaultCategories));
+  } else {
+    let existingIds = state.categories.map(c => c.id);
+    let newCats = defaultCategories.filter(c => !existingIds.includes(c.id));
+    state.categories = [...state.categories, ...newCats];
+  }
+  if (!state.months) state.months = {};
+  if (!state.programmations) state.programmations = [];
+  if (!state.repartitionConfig) state.repartitionConfig = {};
+  if (!state.suggestions) state.suggestions = {};
+  Object.keys(state.months).forEach(key => {
+    let md = state.months[key];
+    if (!md.depenses) md.depenses = {};
+    if (!md.budgets) md.budgets = {};
+    if (!md.recettes) md.recettes = [];
+    state.categories.forEach(c => {
+      if (!md.depenses[c.id]) md.depenses[c.id] = [];
+    });
+  });
+}
+
+// AUTH FUNCTIONS
+async function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
-    let result;
-
-    if (/Mobi|Android/i.test(navigator.userAgent)) {
-      // 👉 MOBILE → redirect
-      await auth.signInWithRedirect(provider);
-      return;
-    } else {
-      // 👉 DESKTOP → popup
-      result = await auth.signInWithPopup(provider);
-    }
-
+    const result = await auth.signInWithPopup(provider);
     const allowed = await checkUserAllowed(result.user.email);
-    if(!allowed){
+    if (!allowed) {
       await auth.signOut();
       document.getElementById('loginError').textContent = "❌ Accès refusé";
       return;
     }
-
     await afterLogin(result.user);
-
-  } catch(e){
+  } catch (e) {
     document.getElementById('loginError').textContent = 'Erreur: ' + e.message;
   }
 }
 
-async function signInWithEmail(){
-  const email=document.getElementById('loginEmail').value.trim();
-  const password=document.getElementById('loginPassword').value;
-  if(!email||!password){document.getElementById('loginError').textContent='E-mail et mot de passe requis.';return;}
-  document.getElementById('loginError').textContent='';
-  try{
-    const allowed=await checkUserAllowed(email);
-    if(!allowed){document.getElementById('loginError').textContent='❌ Accès refusé. Votre e-mail n\'est pas autorisé.';return;}
+async function signInWithEmail() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) {
+    document.getElementById('loginError').textContent = 'E-mail et mot de passe requis.';
+    return;
+  }
+  document.getElementById('loginError').textContent = '';
+  try {
+    const allowed = await checkUserAllowed(email);
+    if (!allowed) {
+      document.getElementById('loginError').textContent = '❌ Accès refusé. Votre e-mail n\'est pas autorisé.';
+      return;
+    }
     let result;
-    try{result=await auth.signInWithEmailAndPassword(email,password);}
-    catch(e2){
-      if(e2.code==='auth/user-not-found'||e2.code==='auth/invalid-credential'){
-        result=await auth.createUserWithEmailAndPassword(email,password);
-      }else throw e2;
+    try {
+      result = await auth.signInWithEmailAndPassword(email, password);
+    } catch (e2) {
+      if (e2.code === 'auth/user-not-found' || e2.code === 'auth/invalid-credential') {
+        result = await auth.createUserWithEmailAndPassword(email, password);
+      } else throw e2;
     }
     await afterLogin(result.user);
-  }catch(e){document.getElementById('loginError').textContent='Erreur: '+e.message;}
+  } catch (e) {
+    document.getElementById('loginError').textContent = 'Erreur: ' + e.message;
+  }
 }
 
-async function checkUserAllowed(email){
-  try{
-    const docRef=db.collection('settings').doc('authorizedUsers');
-    const doc=await docRef.get();
-    if(!doc.exists){
-      await docRef.set({users:[{email:email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
+async function checkUserAllowed(email) {
+  try {
+    const docRef = db.collection('settings').doc('authorizedUsers');
+    const doc = await docRef.get();
+    if (!doc.exists) {
+      await docRef.set({ users: [{ email: email.toLowerCase(), role: 'admin', addedAt: new Date().toISOString() }] });
       return true;
     }
-    const users=doc.data().users||[];
-    return users.some(u=>u.email.toLowerCase()===email.toLowerCase());
-  }catch(e){console.warn(e);return true;}
+    const users = doc.data().users || [];
+    return users.some(u => u.email.toLowerCase() === email.toLowerCase());
+  } catch (e) {
+    console.warn(e);
+    return true;
+  }
 }
 
-async function afterLogin(user){
-  currentUser=user;
+async function afterLogin(user) {
+  currentUser = user;
   document.getElementById('loginScreen').classList.remove('active');
-  document.getElementById('loginError').textContent='';
-  showToast(`👋 Bonjour ${user.displayName||user.email} !`,'success');
-  updateAuthButtons(user);updateUserInfo(user);
+  document.getElementById('loginError').textContent = '';
+  showToast(`👋 Bonjour ${user.displayName || user.email} !`, 'success');
+  updateAuthButtons(user);
+  updateUserInfo(user);
   await loadStateFromCloud(user.uid);
   await checkAdminRole(user.email);
   buildSidebar();
-  if(currentCat)renderCatPage(currentCat);else navigateTo(currentPage);
+  if (currentCat) renderCatPage(currentCat);
+  else navigateTo(currentPage);
 }
 
-async function checkAdminRole(email){
-  try{const doc=await db.collection('settings').doc('authorizedUsers').get();if(doc.exists){const users=doc.data().users||[];const me=users.find(u=>u.email.toLowerCase()===email.toLowerCase());isAdmin=me&&me.role==='admin';}}catch(e){isAdmin=false;}
+async function checkAdminRole(email) {
+  try {
+    const doc = await db.collection('settings').doc('authorizedUsers').get();
+    if (doc.exists) {
+      const users = doc.data().users || [];
+      const me = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      isAdmin = me && me.role === 'admin';
+    }
+  } catch (e) { isAdmin = false; }
 }
 
-async function signOut(){await auth.signOut();currentUser=null;isAdmin=false;document.getElementById('loginScreen').classList.add('active');document.getElementById('loginEmail').value='';document.getElementById('loginPassword').value='';updateAuthButtons(null);updateUserInfo(null);}
-
-function updateAuthButtons(user){
-  const d=document.getElementById('authBtnDesktop'),m=document.getElementById('authBtnMobile');
-  if(user){d.innerHTML='🚪 Se déconnecter';d.onclick=signOut;m.innerHTML='🚪 Se déconnecter';m.onclick=signOut;}
-  else{d.innerHTML='🔑 Connexion Google';d.onclick=signInWithGoogle;m.innerHTML='🔑 Connexion Google';m.onclick=signInWithGoogle;}
+async function signOut() {
+  await auth.signOut();
+  currentUser = null;
+  isAdmin = false;
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  updateAuthButtons(null);
+  updateUserInfo(null);
 }
 
-function updateUserInfo(user){
-  const id=document.getElementById('userInfoDesktop'),im=document.getElementById('userInfoMobile');
-  if(user){document.getElementById('userNameDesktop').textContent=user.displayName||'👤 Utilisateur';document.getElementById('userEmailDesktop').textContent=user.email;document.getElementById('userNameMobile').textContent=user.displayName||'👤 Utilisateur';document.getElementById('userEmailMobile').textContent=user.email;id.style.display='block';im.style.display='block';}
-  else{id.style.display='none';im.style.display='none';}
+function updateAuthButtons(user) {
+  const btns = ['authBtnDesktop', 'authBtnMobile'];
+  btns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      if (user) {
+        btn.innerHTML = '🚪 Se déconnecter';
+        btn.onclick = signOut;
+      } else {
+        btn.innerHTML = '🔑 Connexion Google';
+        btn.onclick = signInWithGoogle;
+      }
+    }
+  });
 }
 
-auth.onAuthStateChanged(async user=>{
-  if(user){const allowed=await checkUserAllowed(user.email);if(!allowed){await auth.signOut();return;}await afterLogin(user);}
-  else{document.getElementById('loginScreen').classList.add('active');}
-});
+function updateUserInfo(user) {
+  const desktopInfo = document.getElementById('userInfoDesktop');
+  const mobileInfo = document.getElementById('userInfoMobile');
+  if (user) {
+    document.getElementById('userNameDesktop').textContent = user.displayName || '👤 Utilisateur';
+    document.getElementById('userEmailDesktop').textContent = user.email;
+    document.getElementById('userNameMobile').textContent = user.displayName || '👤 Utilisateur';
+    document.getElementById('userEmailMobile').textContent = user.email;
+    if (desktopInfo) desktopInfo.style.display = 'block';
+    if (mobileInfo) mobileInfo.style.display = 'block';
+  } else {
+    if (desktopInfo) desktopInfo.style.display = 'none';
+    if (mobileInfo) mobileInfo.style.display = 'none';
+  }
+}
 
-// ===== ADMIN =====
-async function addAuthorizedUser(){
-  if(!isAdmin)return showToast('Accès réservé aux admins','error');
-  const email=document.getElementById('newUserEmail').value.trim().toLowerCase();
-  const role=document.getElementById('newUserRole').value;
-  if(!email)return showToast('E-mail requis','error');
-  try{
-    const docRef=db.collection('settings').doc('authorizedUsers');
-    const doc=await docRef.get();
-    let users=doc.exists?(doc.data().users||[]):[];
-    if(users.some(u=>u.email===email))return showToast('Déjà autorisé','error');
-    users.push({email,role,addedAt:new Date().toISOString()});
-    await docRef.set({users});
-    document.getElementById('newUserEmail').value='';
-    showToast(`✅ ${email} autorisé`,'success');
+// ADMIN FUNCTIONS
+async function addAuthorizedUser() {
+  if (!isAdmin) return showToast('Accès réservé aux admins', 'error');
+  const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+  const role = document.getElementById('newUserRole').value;
+  if (!email) return showToast('E-mail requis', 'error');
+  try {
+    const docRef = db.collection('settings').doc('authorizedUsers');
+    const doc = await docRef.get();
+    let users = doc.exists ? (doc.data().users || []) : [];
+    if (users.some(u => u.email === email)) return showToast('Déjà autorisé', 'error');
+    users.push({ email, role, addedAt: new Date().toISOString() });
+    await docRef.set({ users });
+    document.getElementById('newUserEmail').value = '';
+    showToast(`✅ ${email} autorisé`, 'success');
     renderAuthorizedUsers();
-  }catch(e){showToast('Erreur: '+e.message,'error');}
+  } catch (e) { showToast('Erreur: ' + e.message, 'error'); }
 }
 
-async function removeAuthorizedUser(email){
-  if(!isAdmin)return showToast('Accès réservé aux admins','error');
-  if(!confirm(`Révoquer l'accès de ${email} ?`))return;
-  try{
-    const docRef=db.collection('settings').doc('authorizedUsers');
-    const doc=await docRef.get();let users=doc.exists?(doc.data().users||[]):[];
-    users=users.filter(u=>u.email!==email);
-    await docRef.set({users});showToast(`❌ ${email} retiré`,'warning');renderAuthorizedUsers();
-  }catch(e){showToast('Erreur: '+e.message,'error');}
+async function removeAuthorizedUser(email) {
+  if (!isAdmin) return showToast('Accès réservé aux admins', 'error');
+  if (!confirm(`Révoquer l'accès de ${email} ?`)) return;
+  try {
+    const docRef = db.collection('settings').doc('authorizedUsers');
+    const doc = await docRef.get();
+    let users = doc.exists ? (doc.data().users || []) : [];
+    users = users.filter(u => u.email !== email);
+    await docRef.set({ users });
+    showToast(`❌ ${email} retiré`, 'warning');
+    renderAuthorizedUsers();
+  } catch (e) { showToast('Erreur: ' + e.message, 'error'); }
 }
 
-async function renderAuthorizedUsers(){
-  const list=document.getElementById('authorizedUsersList');if(!list)return;
-  if(!isAdmin){list.innerHTML='<li style="color:var(--grey-400)">Accès réservé aux administrateurs.</li>';return;}
-  try{
-    const doc=await db.collection('settings').doc('authorizedUsers').get();
-    const users=doc.exists?(doc.data().users||[]):[];
-    if(!users.length){list.innerHTML='<li style="color:var(--grey-400);font-size:0.85rem;">Aucun utilisateur</li>';return;}
-    list.innerHTML=users.map(u=>`<li><div><div class="auth-user-email">${u.email}</div><div style="font-size:0.65rem;color:var(--grey-400);">Ajouté le ${u.addedAt?new Date(u.addedAt).toLocaleDateString('fr-FR'):'?'}</div></div><div style="display:flex;align-items:center;gap:8px;"><span class="auth-user-role ${u.role==='admin'?'admin':''}">${u.role}</span>${currentUser&&u.email!==currentUser.email?`<button class="btn btn-danger btn-sm" onclick="removeAuthorizedUser('${u.email}')">✕</button>`:''}</div></li>`).join('');
-  }catch(e){list.innerHTML='<li style="color:var(--red);">Erreur de chargement</li>';}
+async function renderAuthorizedUsers() {
+  const list = document.getElementById('authorizedUsersList');
+  if (!list) return;
+  if (!isAdmin) {
+    list.innerHTML = '<li style="color:var(--grey-400)">Accès réservé aux administrateurs.</li>';
+    return;
+  }
+  try {
+    const doc = await db.collection('settings').doc('authorizedUsers').get();
+    const users = doc.exists ? (doc.data().users || []) : [];
+    if (!users.length) {
+      list.innerHTML = '<li style="color:var(--grey-400);font-size:0.85rem;">Aucun utilisateur</li>';
+      return;
+    }
+    list.innerHTML = users.map(u => `<li><div><div class="auth-user-email">${u.email}</div><div style="font-size:0.65rem;color:var(--grey-400);">Ajouté le ${u.addedAt ? new Date(u.addedAt).toLocaleDateString('fr-FR') : '?'}</div></div><div style="display:flex;align-items:center;gap:8px;"><span class="auth-user-role ${u.role === 'admin' ? 'admin' : ''}">${u.role}</span>${currentUser && u.email !== currentUser.email ? `<button class="btn btn-danger btn-sm removeUserBtn" data-email="${u.email}">✕</button>` : ''}</div></li>`).join('');
+    
+    // Attach remove user events
+    document.querySelectorAll('.removeUserBtn').forEach(btn => {
+      btn.onclick = () => removeAuthorizedUser(btn.dataset.email);
+    });
+  } catch (e) { list.innerHTML = '<li style="color:var(--red);">Erreur de chargement</li>'; }
 }
 
-// ===== SIDEBAR =====
-function buildSidebar(){
-  const d=document.getElementById('desktopNavItems'),m=document.getElementById('mobileNavItems');if(!d)return;
-  let html=`<div class="nav-section-label">📌 Vue d'ensemble</div><div class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></div><div class="nav-item" data-page="recettes"><span class="nav-icon">💰</span><span class="nav-label">Recettes</span><span class="nav-badge" id="bdg-rec-d">0€</span></div><div class="nav-section-label">📂 Dépenses</div>`;
-  state.categories.forEach(c=>{html+=`<div class="nav-item" data-cat="${c.id}"><span class="nav-icon">${c.icon}</span><span class="nav-label">${c.name}</span><span class="nav-badge" id="bdg-${c.id}-d">0€</span></div>`;});
-  html+=`<div class="nav-section-label">🛠️ Outils</div><div class="nav-item" data-page="programmation"><span class="nav-icon">🗓️</span><span class="nav-label">Programmations</span></div><div class="nav-item" data-page="repartition"><span class="nav-icon">📐</span><span class="nav-label">Répartition</span></div><div class="nav-item" data-page="bilan"><span class="nav-icon">📋</span><span class="nav-label">Bilan</span></div><div class="nav-item" data-page="categories"><span class="nav-icon">⚙️</span><span class="nav-label">Catégories</span></div>${isAdmin?'<div class="nav-item" data-page="admin"><span class="nav-icon">🔐</span><span class="nav-label">Accès</span></div>':''}`;
-  d.innerHTML=html;
-  m.innerHTML=html.replace(/id="bdg-([^"]+)-d"/g,'id="bdg-$1-m"');
-  document.querySelectorAll('#desktopNavItems .nav-item[data-page],#mobileNavItems .nav-item[data-page]').forEach(el=>{el.onclick=()=>{navigateTo(el.dataset.page);closeMobileSidebar();};});
-  document.querySelectorAll('#desktopNavItems .nav-item[data-cat],#mobileNavItems .nav-item[data-cat]').forEach(el=>{el.onclick=()=>{navigateTo('categorie',el.dataset.cat);closeMobileSidebar();};});
+// SIDEBAR FUNCTIONS
+function buildSidebar() {
+  const d = document.getElementById('desktopNavItems');
+  const m = document.getElementById('mobileNavItems');
+  if (!d) return;
+  let html = `<div class="nav-section-label">📌 Vue d'ensemble</div>
+              <div class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></div>
+              <div class="nav-item" data-page="recettes"><span class="nav-icon">💰</span><span class="nav-label">Recettes</span><span class="nav-badge" id="bdg-rec-d">0€</span></div>
+              <div class="nav-section-label">📂 Dépenses</div>`;
+  state.categories.forEach(c => {
+    html += `<div class="nav-item" data-cat="${c.id}"><span class="nav-icon">${c.icon}</span><span class="nav-label">${c.name}</span><span class="nav-badge" id="bdg-${c.id}-d">0€</span></div>`;
+  });
+  html += `<div class="nav-section-label">🛠️ Outils</div>
+           <div class="nav-item" data-page="programmation"><span class="nav-icon">🗓️</span><span class="nav-label">Programmations</span></div>
+           <div class="nav-item" data-page="repartition"><span class="nav-icon">📐</span><span class="nav-label">Répartition</span></div>
+           <div class="nav-item" data-page="bilan"><span class="nav-icon">📋</span><span class="nav-label">Bilan</span></div>
+           <div class="nav-item" data-page="categories"><span class="nav-icon">⚙️</span><span class="nav-label">Catégories</span></div>`;
+  if (isAdmin) html += `<div class="nav-item" data-page="admin"><span class="nav-icon">🔐</span><span class="nav-label">Accès</span></div>`;
+  d.innerHTML = html;
+  if (m) m.innerHTML = html.replace(/id="bdg-([^"]+)-d"/g, 'id="bdg-$1-m"');
+  
+  document.querySelectorAll('#desktopNavItems .nav-item[data-page], #mobileNavItems .nav-item[data-page]').forEach(el => {
+    el.onclick = () => { navigateTo(el.dataset.page); closeMobileSidebar(); };
+  });
+  document.querySelectorAll('#desktopNavItems .nav-item[data-cat], #mobileNavItems .nav-item[data-cat]').forEach(el => {
+    el.onclick = () => { navigateTo('categorie', el.dataset.cat); closeMobileSidebar(); };
+  });
   updateBadges();
 }
 
-function updateBadges(){
-  state.categories.forEach(c=>{const spent=getTotalDepensesCat(c.id);['d','m'].forEach(s=>{let b=document.getElementById(`bdg-${c.id}-${s}`);if(b)b.textContent=fmtEur(spent);});});
-  const totalRec=getTotalRecettes();['d','m'].forEach(s=>{let b=document.getElementById(`bdg-rec-${s}`);if(b)b.textContent=fmtEur(totalRec);});
+function updateBadges() {
+  state.categories.forEach(c => {
+    const spent = getTotalDepensesCat(c.id);
+    ['d', 'm'].forEach(s => {
+      let b = document.getElementById(`bdg-${c.id}-${s}`);
+      if (b) b.textContent = fmtEur(spent);
+    });
+  });
+  const totalRec = getTotalRecettes();
+  ['d', 'm'].forEach(s => {
+    let b = document.getElementById(`bdg-rec-${s}`);
+    if (b) b.textContent = fmtEur(totalRec);
+  });
 }
 
-function navigateTo(page,catId=null){
-  currentPage=page;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  if(catId){currentCat=catId;document.getElementById('page-categorie').classList.add('active');renderCatPage(catId);}
-  else{let t=document.getElementById(`page-${page}`);if(t)t.classList.add('active');if(page==='dashboard')renderDashboard();if(page==='recettes')renderRecettes();if(page==='programmation')renderProgrammation();if(page==='repartition')renderRepartition();if(page==='bilan')renderBilan();if(page==='categories')renderCatManager();if(page==='admin')renderAuthorizedUsers();}
+function navigateTo(page, catId = null) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  if (catId) {
+    currentCat = catId;
+    const catPage = document.getElementById('page-categorie');
+    if (catPage) catPage.classList.add('active');
+    renderCatPage(catId);
+  } else {
+    const target = document.getElementById(`page-${page}`);
+    if (target) target.classList.add('active');
+    if (page === 'dashboard') renderDashboard();
+    if (page === 'recettes') renderRecettes();
+    if (page === 'programmation') renderProgrammation();
+    if (page === 'repartition') renderRepartition();
+    if (page === 'bilan') renderBilan();
+    if (page === 'categories') renderCatManager();
+    if (page === 'admin') renderAuthorizedUsers();
+  }
   updateBadges();
 }
 
-// ===== DASHBOARD =====
-function renderDashboard(){
-  document.getElementById('dashboardTitle').innerHTML=`${MONTHS[currentMonth]} ${currentYear}`;
-  let totalRec=getTotalRecettes(),totalDep=state.categories.reduce((s,c)=>s+Math.max(0,getTotalDepensesCat(c.id)),0),solde=totalRec-totalDep;
-  document.getElementById('summaryGrid').innerHTML=`<div class="summary-tile income"><div class="tile-label">Recettes</div><div class="tile-amount">${fmtEur(totalRec)}</div></div><div class="summary-tile expense"><div class="tile-label">Dépenses</div><div class="tile-amount">${fmtEur(totalDep)}</div></div><div class="summary-tile"><div class="tile-label">Solde</div><div class="tile-amount" style="color:${solde>=0?'var(--green)':'var(--red)'}">${fmtEur(solde)}</div></div>`;
-  let grid=document.getElementById('catGrid');grid.innerHTML='';
-  state.categories.forEach(c=>{let spent=getTotalDepensesCat(c.id),eff=getEffectiveBudget(c.id),pct=eff>0?Math.min((spent/eff)*100,100):0,carry=getCarryOver(c.id);grid.innerHTML+=`<div class="cat-tile" onclick="navigateTo('categorie','${c.id}')"><div class="ct-top"><span class="ct-icon">${c.icon}</span><span class="ct-name">${c.name}</span><span class="ct-spent ${spent>eff&&eff>0?'text-red':''}">${fmtEur(spent)}</span></div><div class="ct-bar-wrap"><div class="ct-bar ${pct>=100?'danger':pct>=80?'warn':''}" style="width:${pct}%"></div></div><div class="ct-budget">Budget effectif: ${fmtEur(eff)}</div>${carry!==0?`<div class="ct-carry">📦 Report: ${carry>0?'+':''}${fmtEur(carry)}</div>`:''}</div>`;});
+// DASHBOARD
+function renderDashboard() {
+  const title = document.getElementById('dashboardTitle');
+  if (title) title.innerHTML = `${MONTHS[currentMonth]} ${currentYear}`;
+  let totalRec = getTotalRecettes();
+  let totalDep = state.categories.reduce((s, c) => s + Math.max(0, getTotalDepensesCat(c.id)), 0);
+  let solde = totalRec - totalDep;
+  const summaryGrid = document.getElementById('summaryGrid');
+  if (summaryGrid) {
+    summaryGrid.innerHTML = `<div class="summary-tile income"><div class="tile-label">Recettes</div><div class="tile-amount">${fmtEur(totalRec)}</div></div>
+                             <div class="summary-tile expense"><div class="tile-label">Dépenses</div><div class="tile-amount">${fmtEur(totalDep)}</div></div>
+                             <div class="summary-tile"><div class="tile-label">Solde</div><div class="tile-amount" style="color:${solde >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtEur(solde)}</div></div>`;
+  }
+  const catGrid = document.getElementById('catGrid');
+  if (catGrid) {
+    catGrid.innerHTML = '';
+    state.categories.forEach(c => {
+      let spent = getTotalDepensesCat(c.id);
+      let eff = getEffectiveBudget(c.id);
+      let pct = eff > 0 ? Math.min((spent / eff) * 100, 100) : 0;
+      let carry = getCarryOver(c.id);
+      catGrid.innerHTML += `<div class="cat-tile" onclick="navigateTo('categorie','${c.id}')">
+        <div class="ct-top"><span class="ct-icon">${c.icon}</span><span class="ct-name">${c.name}</span><span class="ct-spent ${spent > eff && eff > 0 ? 'text-red' : ''}">${fmtEur(spent)}</span></div>
+        <div class="ct-bar-wrap"><div class="ct-bar ${pct >= 100 ? 'danger' : pct >= 80 ? 'warn' : ''}" style="width:${pct}%"></div></div>
+        <div class="ct-budget">Budget effectif: ${fmtEur(eff)}</div>${carry !== 0 ? `<div class="ct-carry">📦 Report: ${carry > 0 ? '+' : ''}${fmtEur(carry)}</div>` : ''}
+      </div>`;
+    });
+  }
 }
 
-// ===== SUGGESTIONS =====
-function refreshSuggestions(catId){
-  let sugg=document.getElementById(`sug-${catId}`);if(!sugg)return;
-  sugg.innerHTML=(state.suggestions[catId]||[]).map(v=>`<option value="${v}">`).join('');
+// RECETTES
+function refreshSuggestions(catId) {
+  let sugg = document.getElementById(`sug-${catId}`);
+  if (!sugg) return;
+  sugg.innerHTML = (state.suggestions[catId] || []).map(v => `<option value="${v}">`).join('');
 }
 
-// ===== RECETTES =====
-function addRecette(){
-  let libEl=document.getElementById('rec-libelle'),montEl=document.getElementById('rec-montant'),dateEl=document.getElementById('rec-date');
-  let lib=libEl.value.trim(),mont=parseFloat(montEl.value),date=dateEl.value;
-  if(!lib||!mont||mont<=0||!date)return showToast('Champs requis','error');
-  let md=getMonthData();
-  md.recettes.push({id:uid(),libelle:lib,montant:mont,date});
-  if(!state.suggestions.recettes)state.suggestions.recettes=[];
-  if(!state.suggestions.recettes.includes(lib))state.suggestions.recettes.push(lib);
+function addRecette() {
+  let libEl = document.getElementById('rec-libelle');
+  let montEl = document.getElementById('rec-montant');
+  let dateEl = document.getElementById('rec-date');
+  let lib = libEl.value.trim();
+  let mont = parseFloat(montEl.value);
+  let date = dateEl.value;
+  if (!lib || !mont || mont <= 0 || !date) return showToast('Champs requis', 'error');
+  let md = getMonthData();
+  md.recettes.push({ id: uid(), libelle: lib, montant: mont, date });
+  if (!state.suggestions.recettes) state.suggestions.recettes = [];
+  if (!state.suggestions.recettes.includes(lib)) state.suggestions.recettes.push(lib);
   saveState();
-  // Effacement formulaire après validation
-  libEl.value='';montEl.value='';dateEl.value=toDateInput(new Date());
-  renderRecettes();updateBadges();showToast('Recette ajoutée','success');
-}
-function removeRecette(id){let md=getMonthData();md.recettes=md.recettes.filter(r=>r.id!==id);saveState();renderRecettes();updateBadges();}
-function renderRecettes(){
-  let all=getFullRecettes(),total=all.reduce((s,r)=>s+r.montant,0);
-  document.getElementById('totalRecettes').innerHTML=fmtEur(total);
-  refreshSuggestions('recettes');
-  let dateEl=document.getElementById('rec-date');if(dateEl&&!dateEl.value)dateEl.value=toDateInput(new Date());
-  let list=document.getElementById('listRecettes');
-  if(!all.length){list.innerHTML='<li style="padding:20px;text-align:center;color:#6c757d;">Aucune recette</li>';return;}
-  list.innerHTML=all.sort((a,b)=>b.date.localeCompare(a.date)).map(r=>`<li class="tx-item"><div class="tx-dot"></div><div class="tx-info"><div class="tx-label">${r.libelle}${r.isProgrammed?'<span class="badge badge-blue">Prog.</span>':''}</div><div class="tx-meta">${r.date}</div></div><div class="tx-amount credit">${fmtEur(r.montant)}</div><div class="tx-actions">${!r.isProgrammed?`<button class="btn btn-secondary btn-sm" onclick="openEditModal('recette',null,'${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="removeRecette('${r.id}')">🗑️</button>`:''}</div></li>`).join('');
+  libEl.value = '';
+  montEl.value = '';
+  dateEl.value = toDateInput(new Date());
+  renderRecettes();
+  updateBadges();
+  showToast('Recette ajoutée', 'success');
 }
 
-// ===== CATÉGORIE =====
-function renderCatPage(catId){
-  let cat=state.categories.find(c=>c.id===catId);if(!cat)return;
-  document.getElementById('catPageTitle').innerHTML=`${cat.icon} ${cat.name}`;
-  let md=getMonthData(),baseBudget=(md.budgets||{})[catId]||0,carry=getCarryOver(catId),eff=baseBudget+carry,spent=getTotalDepensesCat(catId),reste=eff-spent,pct=eff>0?Math.min((spent/eff)*100,100):0;
-  document.getElementById('catBudgetContainer').innerHTML=`<div class="card" style="margin-bottom:12px;"><div class="card-body"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><div style="flex:1;"><div style="font-size:.7rem;font-weight:600;color:#6c757d;">Budget mensuel</div><div style="display:flex;align-items:center;gap:8px;margin-top:4px;"><input type="number" id="catBudgetInput" value="${baseBudget}" style="width:120px;" oninput="updateCatBudget()" step="1"><span>€</span>${carry!==0?`<div class="carry-badge" style="margin-left:8px;">📦 Report: ${carry>0?'+':''}${fmtEur(carry)}</div>`:''}</div><div style="margin-top:6px;"><strong>Budget effectif:</strong> ${fmtEur(eff)}</div></div><div style="flex:2;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Dépensé: ${fmtEur(spent)}</span><span>Reste: ${fmtEur(reste)}</span></div><div class="budget-bar-wrap"><div class="budget-bar ${pct>=100?'danger':pct>=80?'warn':''}" style="width:${pct}%"></div></div>${spent>eff?`<div style="color:var(--red);font-size:.7rem;margin-top:4px;">⚠️ Dépassement de ${fmtEur(spent-eff)}</div>`:''}</div></div></div></div>`;
-  let isMedical=catId==='medical';
-  let medBlock=document.getElementById('medicalSummaryBlock');medBlock.style.display=isMedical?'block':'none';
-  if(isMedical){let txs=getFullDepenses(catId),dep=txs.filter(t=>t.txType!=='remboursement').reduce((s,t)=>s+t.montant,0),remb=txs.filter(t=>t.txType==='remboursement').reduce((s,t)=>s+t.montant,0);document.getElementById('med-depenses').innerHTML=fmtEur(dep);document.getElementById('med-remb').innerHTML=fmtEur(remb);document.getElementById('med-net').innerHTML=fmtEur(dep-remb);}
-  let formBody=document.getElementById('addFormBody');
-  formBody.innerHTML=`<div class="form-row"><div class="form-group"><label>Libellé</label><input type="text" id="dep-libelle-${catId}" list="sug-${catId}" autocomplete="off"><datalist id="sug-${catId}"></datalist></div><div class="form-group"><label>Montant (€)</label><input type="number" id="dep-montant-${catId}" step="0.01"></div><div class="form-group"><label>Date</label><input type="date" id="dep-date-${catId}"></div>${isMedical?`<div class="form-group"><label>Type</label><select id="dep-type-${catId}"><option value="depense">Dépense</option><option value="remboursement">Remboursement</option></select></div>`:''}<div class="form-group" style="flex:0;"><button class="btn btn-primary" onclick="addDepense('${catId}')">Ajouter</button></div></div>`;
-  refreshSuggestions(catId);
-  let dateInp=document.getElementById(`dep-date-${catId}`);if(dateInp)dateInp.value=toDateInput(new Date());
+function removeRecette(id) {
+  let md = getMonthData();
+  md.recettes = md.recettes.filter(r => r.id !== id);
+  saveState();
+  renderRecettes();
+  updateBadges();
+}
+
+function renderRecettes() {
+  let all = getFullRecettes();
+  let total = all.reduce((s, r) => s + r.montant, 0);
+  const totalEl = document.getElementById('totalRecettes');
+  if (totalEl) totalEl.innerHTML = fmtEur(total);
+  refreshSuggestions('recettes');
+  let dateEl = document.getElementById('rec-date');
+  if (dateEl && !dateEl.value) dateEl.value = toDateInput(new Date());
+  let list = document.getElementById('listRecettes');
+  if (!list) return;
+  if (!all.length) {
+    list.innerHTML = '<li style="padding:20px;text-align:center;color:#6c757d;">Aucune recette</li>';
+    return;
+  }
+  list.innerHTML = all.sort((a, b) => b.date.localeCompare(a.date)).map(r => `<li class="tx-item">
+    <div class="tx-dot"></div>
+    <div class="tx-info"><div class="tx-label">${r.libelle}${r.isProgrammed ? '<span class="badge badge-blue">Prog.</span>' : ''}</div><div class="tx-meta">${r.date}</div></div>
+    <div class="tx-amount credit">${fmtEur(r.montant)}</div>
+    <div class="tx-actions">${!r.isProgrammed ? `<button class="btn btn-secondary btn-sm editRecetteBtn" data-id="${r.id}">✏️</button><button class="btn btn-danger btn-sm removeRecetteBtn" data-id="${r.id}">🗑️</button>` : ''}</div>
+  </li>`).join('');
+  
+  // Attach events
+  document.querySelectorAll('.editRecetteBtn').forEach(btn => {
+    btn.onclick = () => openEditModal('recette', null, btn.dataset.id);
+  });
+  document.querySelectorAll('.removeRecetteBtn').forEach(btn => {
+    btn.onclick = () => removeRecette(btn.dataset.id);
+  });
+}
+
+// CATEGORIE PAGE
+function renderCatPage(catId) {
+  let cat = state.categories.find(c => c.id === catId);
+  if (!cat) return;
+  const catTitle = document.getElementById('catPageTitle');
+  if (catTitle) catTitle.innerHTML = `${cat.icon} ${cat.name}`;
+  let md = getMonthData();
+  let baseBudget = (md.budgets || {})[catId] || 0;
+  let carry = getCarryOver(catId);
+  let eff = baseBudget + carry;
+  let spent = getTotalDepensesCat(catId);
+  let reste = eff - spent;
+  let pct = eff > 0 ? Math.min((spent / eff) * 100, 100) : 0;
+  const budgetContainer = document.getElementById('catBudgetContainer');
+  if (budgetContainer) {
+    budgetContainer.innerHTML = `<div class="card" style="margin-bottom:12px;">
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;">
+            <div style="font-size:.7rem;font-weight:600;color:#6c757d;">Budget mensuel</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <input type="number" id="catBudgetInput" value="${baseBudget}" style="width:120px;" step="1"><span>€</span>
+              ${carry !== 0 ? `<div class="carry-badge" style="margin-left:8px;">📦 Report: ${carry > 0 ? '+' : ''}${fmtEur(carry)}</div>` : ''}
+            </div>
+            <div style="margin-top:6px;"><strong>Budget effectif:</strong> ${fmtEur(eff)}</div>
+          </div>
+          <div style="flex:2;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Dépensé: ${fmtEur(spent)}</span><span>Reste: ${fmtEur(reste)}</span></div>
+            <div class="budget-bar-wrap"><div class="budget-bar ${pct >= 100 ? 'danger' : pct >= 80 ? 'warn' : ''}" style="width:${pct}%"></div></div>
+            ${spent > eff ? `<div style="color:var(--red);font-size:.7rem;margin-top:4px;">⚠️ Dépassement de ${fmtEur(spent - eff)}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+    
+    const budgetInput = document.getElementById('catBudgetInput');
+    if (budgetInput) budgetInput.onchange = () => updateCatBudget();
+  }
+  
+  let isMedical = catId === 'medical';
+  let medBlock = document.getElementById('medicalSummaryBlock');
+  if (medBlock) medBlock.style.display = isMedical ? 'block' : 'none';
+  if (isMedical) {
+    let txs = getFullDepenses(catId);
+    let dep = txs.filter(t => t.txType !== 'remboursement').reduce((s, t) => s + t.montant, 0);
+    let remb = txs.filter(t => t.txType === 'remboursement').reduce((s, t) => s + t.montant, 0);
+    const medDep = document.getElementById('med-depenses');
+    const medRemb = document.getElementById('med-remb');
+    const medNet = document.getElementById('med-net');
+    if (medDep) medDep.innerHTML = fmtEur(dep);
+    if (medRemb) medRemb.innerHTML = fmtEur(remb);
+    if (medNet) medNet.innerHTML = fmtEur(dep - remb);
+  }
+  
+  let formBody = document.getElementById('addFormBody');
+  if (formBody) {
+    formBody.innerHTML = `<div class="form-row">
+      <div class="form-group"><label>Libellé</label><input type="text" id="dep-libelle-${catId}" list="sug-${catId}" autocomplete="off"><datalist id="sug-${catId}"></datalist></div>
+      <div class="form-group"><label>Montant (€)</label><input type="number" id="dep-montant-${catId}" step="0.01"></div>
+      <div class="form-group"><label>Date</label><input type="date" id="dep-date-${catId}"></div>
+      ${isMedical ? `<div class="form-group"><label>Type</label><select id="dep-type-${catId}"><option value="depense">Dépense</option><option value="remboursement">Remboursement</option></select></div>` : ''}
+      <div class="form-group" style="flex:0;"><button class="btn btn-primary addDepenseBtn" data-cat="${catId}">Ajouter</button></div>
+    </div>`;
+    refreshSuggestions(catId);
+    let dateInp = document.getElementById(`dep-date-${catId}`);
+    if (dateInp) dateInp.value = toDateInput(new Date());
+    
+    const addBtn = formBody.querySelector('.addDepenseBtn');
+    if (addBtn) addBtn.onclick = () => addDepense(catId);
+  }
   renderCatTransactions(catId);
 }
 
-function updateCatBudget(){if(!currentCat)return;let val=parseFloat(document.getElementById('catBudgetInput').value)||0;let md=getMonthData();if(!md.budgets)md.budgets={};md.budgets[currentCat]=val;saveState();renderCatPage(currentCat);updateBadges();}
-
-function addDepense(catId){
-  let libEl=document.getElementById(`dep-libelle-${catId}`),montEl=document.getElementById(`dep-montant-${catId}`),dateEl=document.getElementById(`dep-date-${catId}`);
-  let lib=libEl.value.trim(),mont=parseFloat(montEl.value),date=dateEl.value;
-  let txType=catId==='medical'?document.getElementById(`dep-type-${catId}`)?.value:'depense';
-  if(!lib||!mont||mont<=0||!date)return showToast('Champs requis','error');
-  let md=getMonthData();if(!md.depenses[catId])md.depenses[catId]=[];
-  md.depenses[catId].push({id:uid(),libelle:lib,montant:mont,date,txType});
-  if(!state.suggestions[catId])state.suggestions[catId]=[];
-  if(!state.suggestions[catId].includes(lib))state.suggestions[catId].push(lib);
+function updateCatBudget() {
+  if (!currentCat) return;
+  let val = parseFloat(document.getElementById('catBudgetInput').value) || 0;
+  let md = getMonthData();
+  if (!md.budgets) md.budgets = {};
+  md.budgets[currentCat] = val;
   saveState();
-  // Effacement formulaire après validation
-  libEl.value='';montEl.value='';dateEl.value=toDateInput(new Date());
+  renderCatPage(currentCat);
+  updateBadges();
+}
+
+function addDepense(catId) {
+  let libEl = document.getElementById(`dep-libelle-${catId}`);
+  let montEl = document.getElementById(`dep-montant-${catId}`);
+  let dateEl = document.getElementById(`dep-date-${catId}`);
+  let lib = libEl.value.trim();
+  let mont = parseFloat(montEl.value);
+  let date = dateEl.value;
+  let txType = catId === 'medical' ? document.getElementById(`dep-type-${catId}`)?.value : 'depense';
+  if (!lib || !mont || mont <= 0 || !date) return showToast('Champs requis', 'error');
+  let md = getMonthData();
+  if (!md.depenses[catId]) md.depenses[catId] = [];
+  md.depenses[catId].push({ id: uid(), libelle: lib, montant: mont, date, txType });
+  if (!state.suggestions[catId]) state.suggestions[catId] = [];
+  if (!state.suggestions[catId].includes(lib)) state.suggestions[catId].push(lib);
+  saveState();
+  libEl.value = '';
+  montEl.value = '';
+  dateEl.value = toDateInput(new Date());
   refreshSuggestions(catId);
-  renderCatTransactions(catId);updateBadges();showToast('Ajouté','success');
+  renderCatTransactions(catId);
+  updateBadges();
+  showToast('Ajouté', 'success');
 }
 
-function removeDepense(catId,id){let md=getMonthData();md.depenses[catId]=md.depenses[catId].filter(d=>d.id!==id);saveState();renderCatTransactions(catId);updateBadges();}
-
-function renderCatTransactions(catId){
-  let all=getFullDepenses(catId),list=document.getElementById('catTxList');
-  let total=catId==='medical'?all.reduce((s,t)=>t.txType==='remboursement'?s-t.montant:s+t.montant,0):all.reduce((s,t)=>s+t.montant,0);
-  document.getElementById('catTotalLabel').innerHTML=fmtEur(total);
-  if(!all.length){list.innerHTML='<li style="padding:20px;text-align:center;color:#6c757d;">Aucune transaction</li>';return;}
-  list.innerHTML=all.sort((a,b)=>b.date.localeCompare(a.date)).map(tx=>`<li class="tx-item"><div class="tx-dot ${tx.txType==='remboursement'?'remboursement':'depense'}"></div><div class="tx-info"><div class="tx-label">${tx.libelle}${tx.txType==='remboursement'?'<span class="badge badge-blue">Remb.</span>':''}${tx.isProgrammed?'<span class="badge badge-amber">Prog.</span>':''}</div><div class="tx-meta">${tx.date}</div></div><div class="tx-amount ${tx.txType==='remboursement'?'credit':'debit'}">${tx.txType==='remboursement'?'+':'-'}${fmtEur(tx.montant)}</div><div class="tx-actions">${!tx.isProgrammed?`<button class="btn btn-secondary btn-sm" onclick="openEditModal('depense','${catId}','${tx.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="removeDepense('${catId}','${tx.id}')">🗑️</button>`:''}</div></li>`).join('');
+function removeDepense(catId, id) {
+  let md = getMonthData();
+  md.depenses[catId] = md.depenses[catId].filter(d => d.id !== id);
+  saveState();
+  renderCatTransactions(catId);
+  updateBadges();
 }
 
-function scrollToAddForm(){document.getElementById('addFormCard')?.scrollIntoView({behavior:'smooth'});}
-
-// ===== MODAL EDIT =====
-function openEditModal(section,catId,txId){
-  editingCtx={section,catId,txId};
-  let md=getMonthData();
-  let tx=section==='recette'?md.recettes.find(r=>r.id===txId):(md.depenses[catId]||[]).find(d=>d.id===txId);
-  if(!tx)return;
-  let html=`<div class="form-group"><label>Libellé</label><input id="edit-libelle" value="${tx.libelle.replace(/"/g,'&quot;')}"></div><div class="form-row"><div class="form-group"><label>Montant (€)</label><input type="number" id="edit-montant" value="${tx.montant}" step="0.01"></div><div class="form-group"><label>Date</label><input type="date" id="edit-date" value="${tx.date}"></div></div>`;
-  if(section!=='recette'&&catId==='medical')html+=`<div class="form-group"><label>Type</label><select id="edit-txtype"><option value="depense" ${tx.txType!=='remboursement'?'selected':''}>Dépense</option><option value="remboursement" ${tx.txType==='remboursement'?'selected':''}>Remboursement</option></select></div>`;
-  document.getElementById('editModalBody').innerHTML=html;
-  document.getElementById('editModalOverlay').classList.add('open');
-}
-function closeEditModal(){document.getElementById('editModalOverlay').classList.remove('open');editingCtx=null;}
-function saveEdit(){
-  if(!editingCtx)return;
-  let{section,catId,txId}=editingCtx;
-  let lib=document.getElementById('edit-libelle').value.trim(),mont=parseFloat(document.getElementById('edit-montant').value),date=document.getElementById('edit-date').value;
-  if(!lib||!mont||mont<=0||!date)return showToast('Données invalides','error');
-  let md=getMonthData();
-  if(section==='recette'){let tx=md.recettes.find(r=>r.id===txId);if(tx){tx.libelle=lib;tx.montant=mont;tx.date=date;}}
-  else{let tx=md.depenses[catId]?.find(d=>d.id===txId);if(tx){tx.libelle=lib;tx.montant=mont;tx.date=date;let sel=document.getElementById('edit-txtype');if(sel)tx.txType=sel.value;}}
-  saveState();closeEditModal();showToast('Modifié','success');
-  if(section==='recette')renderRecettes();else renderCatPage(catId);updateBadges();
-}
-
-// ===== PROGRAMMATION =====
-function openProgModal(type='depense',catId=null){
-  let catSelect=document.getElementById('prog-cat');catSelect.innerHTML=state.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
-  if(catId)catSelect.value=catId;
-  document.getElementById('prog-type').value=type;onProgTypeChange();
-  let today=new Date();
-  document.getElementById('prog-debut').value=toDateInput(today);
-  document.getElementById('prog-fin').value=toDateInput(new Date(today.getFullYear(),today.getMonth()+12,today.getDate()));
-  document.getElementById('prog-libelle').value='';document.getElementById('prog-montant').value='';
-  document.getElementById('progModalOverlay').classList.add('open');
-}
-function onProgTypeChange(){document.getElementById('progCatGroup').style.display=document.getElementById('prog-type').value==='recette'?'none':'';}
-function closeProgModal(){document.getElementById('progModalOverlay').classList.remove('open');}
-function saveProg(){
-  let type=document.getElementById('prog-type').value,catId=type==='recette'?null:document.getElementById('prog-cat').value,lib=document.getElementById('prog-libelle').value.trim(),mont=parseFloat(document.getElementById('prog-montant').value),recur=document.getElementById('prog-recurrence').value,debut=document.getElementById('prog-debut').value,fin=document.getElementById('prog-fin').value;
-  if(!lib||!mont||mont<=0||!debut||!fin)return showToast('Champs requis','error');
-  if(debut>fin)return showToast('La date de fin doit être postérieure','error');
-  state.programmations.push({id:uid(),type,catId,libelle:lib,montant:mont,recurrence:recur,debut,fin,notes:document.getElementById('prog-notes').value,suspended:false});
-  saveState();closeProgModal();showToast('Programmé !','success');
-  if(currentPage==='programmation')renderProgrammation();updateBadges();
-}
-function suspendProg(pid){let p=state.programmations.find(x=>x.id===pid);if(p){p.suspended=!p.suspended;saveState();renderProgrammation();updateBadges();}}
-function deleteProg(pid){if(confirm('Supprimer cette programmation ?')){state.programmations=state.programmations.filter(p=>p.id!==pid);saveState();renderProgrammation();updateBadges();}}
-
-let editingProgId=null;
-function openEditProgModal(pid){
-  let p=state.programmations.find(x=>x.id===pid);if(!p)return;
-  editingProgId=pid;
-  let catOptions=state.categories.map(c=>`<option value="${c.id}" ${c.id===p.catId?'selected':''}>${c.icon} ${c.name}</option>`).join('');
-  document.getElementById('editProgModalBody').innerHTML=`
-    <div class="form-row">
-      <div class="form-group"><label>Type</label><select id="eprog-type"><option value="depense" ${p.type==='depense'?'selected':''}>Dépense</option><option value="recette" ${p.type==='recette'?'selected':''}>Recette</option></select></div>
-      <div class="form-group" id="eprogCatGroup" style="${p.type==='recette'?'display:none':''}"><label>Catégorie</label><select id="eprog-cat">${catOptions}</select></div>
-    </div>
-    <div class="form-group"><label>Libellé</label><input type="text" id="eprog-libelle" value="${p.libelle.replace(/"/g,'&quot;')}"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Montant (€)</label><input type="number" id="eprog-montant" value="${p.montant}" step="0.01"></div>
-      <div class="form-group"><label>Récurrence</label><select id="eprog-recurrence"><option value="unique" ${p.recurrence==='unique'?'selected':''}>Unique</option><option value="mensuel" ${p.recurrence==='mensuel'?'selected':''}>Mensuel</option><option value="trimestriel" ${p.recurrence==='trimestriel'?'selected':''}>Trimestriel</option><option value="annuel" ${p.recurrence==='annuel'?'selected':''}>Annuel</option></select></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Début</label><input type="date" id="eprog-debut" value="${p.debut}"></div>
-      <div class="form-group"><label>Fin</label><input type="date" id="eprog-fin" value="${p.fin}"></div>
-    </div>
-    <div class="form-group"><label>Notes</label><textarea id="eprog-notes" rows="2">${p.notes||''}</textarea></div>`;
-  document.getElementById('eprog-type').onchange=()=>{document.getElementById('eprogCatGroup').style.display=document.getElementById('eprog-type').value==='recette'?'none':'';};
-  document.getElementById('editProgModalOverlay').classList.add('open');
-}
-function closeEditProgModal(){document.getElementById('editProgModalOverlay').classList.remove('open');editingProgId=null;}
-function saveEditProg(){
-  if(!editingProgId)return;
-  let p=state.programmations.find(x=>x.id===editingProgId);if(!p)return;
-  let lib=document.getElementById('eprog-libelle').value.trim();
-  let mont=parseFloat(document.getElementById('eprog-montant').value);
-  let debut=document.getElementById('eprog-debut').value;
-  let fin=document.getElementById('eprog-fin').value;
-  if(!lib||!mont||mont<=0||!debut||!fin)return showToast('Champs requis','error');
-  p.libelle=lib;p.montant=mont;p.recurrence=document.getElementById('eprog-recurrence').value;
-  p.debut=debut;p.fin=fin;p.notes=document.getElementById('eprog-notes').value;
-  p.type=document.getElementById('eprog-type').value;
-  if(p.type!=='recette')p.catId=document.getElementById('eprog-cat').value;
-  saveState();closeEditProgModal();showToast('Programmation modifiée','success');renderProgrammation();updateBadges();
+function renderCatTransactions(catId) {
+  let all = getFullDepenses(catId);
+  let list = document.getElementById('catTxList');
+  if (!list) return;
+  let total = catId === 'medical' ? all.reduce((s, t) => t.txType === 'remboursement' ? s - t.montant : s + t.montant, 0) : all.reduce((s, t) => s + t.montant, 0);
+  const totalLabel = document.getElementById('catTotalLabel');
+  if (totalLabel) totalLabel.innerHTML = fmtEur(total);
+  if (!all.length) {
+    list.innerHTML = '<li style="padding:20px;text-align:center;color:#6c757d;">Aucune transaction</li>';
+    return;
+  }
+  list.innerHTML = all.sort((a, b) => b.date.localeCompare(a.date)).map(tx => `<li class="tx-item">
+    <div class="tx-dot ${tx.txType === 'remboursement' ? 'remboursement' : 'depense'}"></div>
+    <div class="tx-info"><div class="tx-label">${tx.libelle}${tx.txType === 'remboursement' ? '<span class="badge badge-blue">Remb.</span>' : ''}${tx.isProgrammed ? '<span class="badge badge-amber">Prog.</span>' : ''}</div><div class="tx-meta">${tx.date}</div></div>
+    <div class="tx-amount ${tx.txType === 'remboursement' ? 'credit' : 'debit'}">${tx.txType === 'remboursement' ? '+' : '-'}${fmtEur(tx.montant)}</div>
+    <div class="tx-actions">${!tx.isProgrammed ? `<button class="btn btn-secondary btn-sm editDepenseBtn" data-cat="${catId}" data-id="${tx.id}">✏️</button><button class="btn btn-danger btn-sm removeDepenseBtn" data-cat="${catId}" data-id="${tx.id}">🗑️</button>` : ''}</div>
+  </li>`).join('');
+  
+  document.querySelectorAll('.editDepenseBtn').forEach(btn => {
+    btn.onclick = () => openEditModal('depense', btn.dataset.cat, btn.dataset.id);
+  });
+  document.querySelectorAll('.removeDepenseBtn').forEach(btn => {
+    btn.onclick = () => removeDepense(btn.dataset.cat, btn.dataset.id);
+  });
 }
 
-function renderProgrammation(){
-  let cont=document.getElementById('progListContainer');
-  if(!state.programmations.length){cont.innerHTML='<p style="padding:20px;text-align:center;color:#6c757d;">Aucune programmation</p>';return;}
-  cont.innerHTML=state.programmations.map(p=>{let cat=state.categories.find(c=>c.id===p.catId);return`<div class="prog-item ${p.suspended?'suspended':''}"><div class="pi-info"><div class="pi-name">${p.libelle} ${p.suspended?'⏸ Suspendu':''}</div><div class="pi-meta"><span class="badge badge-amber">${p.recurrence}</span> ${cat?cat.icon+' '+cat.name:''} ${p.debut} → ${p.fin}${p.notes?' 📝 '+p.notes:''}</div></div><div><div class="pi-amount ${p.type==='recette'?'text-green':'text-red'}">${fmtEur(p.montant)}</div><div style="display:flex;gap:4px;margin-top:6px;"><button class="btn btn-secondary btn-sm" onclick="openEditProgModal('${p.id}')">✏️</button><button class="btn btn-secondary btn-sm" onclick="suspendProg('${p.id}')">${p.suspended?'▶️':'⏸️'}</button><button class="btn btn-danger btn-sm" onclick="deleteProg('${p.id}')">🗑️</button></div></div></div>`;}).join('');
+function scrollToAddForm() {
+  const formCard = document.getElementById('addFormCard');
+  if (formCard) formCard.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ===== RÉPARTITION =====
-function renderRepartition(){
-  let totalRec=getTotalRecettes();document.getElementById('totalRevLabel').innerHTML=fmtEur(totalRec);
-  let md=getMonthData(),totalCalc=0,totalBudget=0;
-  document.getElementById('repTableBody').innerHTML=state.categories.map(c=>{
-    let cfg=state.repartitionConfig[c.id]||{type:'pct',val:''};let val=cfg.val===''?'':parseFloat(cfg.val);
-    let calc=(val&&!isNaN(val))?(cfg.type==='pct'?(val/100)*totalRec:val):0;
-    totalCalc+=calc;totalBudget+=(md.budgets||{})[c.id]||0;
-    return`<tr><td><span style="font-size:1.1rem;">${c.icon}</span> ${c.name}</td><td><select onchange="updateRepartType('${c.id}',this.value)"><option value="pct" ${cfg.type==='pct'?'selected':''}>%</option><option value="fixed" ${cfg.type==='fixed'?'selected':''}>€</option></select></td><td><input type="number" value="${cfg.val}" onchange="updateRepartVal('${c.id}',this.value)" style="width:70px;"></td><td class="mono">${calc>0?fmtEur(calc):'—'}</td><td class="mono">${fmtEur((md.budgets||{})[c.id]||0)}</td></tr>`;
+// MODAL EDIT
+function openEditModal(section, catId, txId) {
+  editingCtx = { section, catId, txId };
+  let md = getMonthData();
+  let tx = section === 'recette' ? md.recettes.find(r => r.id === txId) : (md.depenses[catId] || []).find(d => d.id === txId);
+  if (!tx) return;
+  let html = `<div class="form-group"><label>Libellé</label><input id="edit-libelle" value="${tx.libelle.replace(/"/g, '&quot;')}"></div>
+              <div class="form-row"><div class="form-group"><label>Montant (€)</label><input type="number" id="edit-montant" value="${tx.montant}" step="0.01"></div>
+              <div class="form-group"><label>Date</label><input type="date" id="edit-date" value="${tx.date}"></div></div>`;
+  if (section !== 'recette' && catId === 'medical') {
+    html += `<div class="form-group"><label>Type</label><select id="edit-txtype"><option value="depense" ${tx.txType !== 'remboursement' ? 'selected' : ''}>Dépense</option><option value="remboursement" ${tx.txType === 'remboursement' ? 'selected' : ''}>Remboursement</option></select></div>`;
+  }
+  const modalBody = document.getElementById('editModalBody');
+  if (modalBody) modalBody.innerHTML = html;
+  const overlay = document.getElementById('editModalOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeEditModal() {
+  const overlay = document.getElementById('editModalOverlay');
+  if (overlay) overlay.classList.remove('open');
+  editingCtx = null;
+}
+
+function saveEdit() {
+  if (!editingCtx) return;
+  let { section, catId, txId } = editingCtx;
+  let lib = document.getElementById('edit-libelle').value.trim();
+  let mont = parseFloat(document.getElementById('edit-montant').value);
+  let date = document.getElementById('edit-date').value;
+  if (!lib || !mont || mont <= 0 || !date) return showToast('Données invalides', 'error');
+  let md = getMonthData();
+  if (section === 'recette') {
+    let tx = md.recettes.find(r => r.id === txId);
+    if (tx) { tx.libelle = lib; tx.montant = mont; tx.date = date; }
+  } else {
+    let tx = md.depenses[catId]?.find(d => d.id === txId);
+    if (tx) {
+      tx.libelle = lib;
+      tx.montant = mont;
+      tx.date = date;
+      let sel = document.getElementById('edit-txtype');
+      if (sel) tx.txType = sel.value;
+    }
+  }
+  saveState();
+  closeEditModal();
+  showToast('Modifié', 'success');
+  if (section === 'recette') renderRecettes();
+  else renderCatPage(catId);
+  updateBadges();
+}
+
+// PROGRAMMATION
+function openProgModal(type = 'depense', catId = null) {
+  let catSelect = document.getElementById('prog-cat');
+  if (catSelect) {
+    catSelect.innerHTML = state.categories.map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+    if (catId) catSelect.value = catId;
+  }
+  let typeSelect = document.getElementById('prog-type');
+  if (typeSelect) typeSelect.value = type;
+  onProgTypeChange();
+  let today = new Date();
+  let debutInput = document.getElementById('prog-debut');
+  let finInput = document.getElementById('prog-fin');
+  if (debutInput) debutInput.value = toDateInput(today);
+  if (finInput) finInput.value = toDateInput(new Date(today.getFullYear(), today.getMonth() + 12, today.getDate()));
+  let libelleInput = document.getElementById('prog-libelle');
+  let montantInput = document.getElementById('prog-montant');
+  if (libelleInput) libelleInput.value = '';
+  if (montantInput) montantInput.value = '';
+  const overlay = document.getElementById('progModalOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function onProgTypeChange() {
+  const catGroup = document.getElementById('progCatGroup');
+  if (catGroup) {
+    catGroup.style.display = document.getElementById('prog-type').value === 'recette' ? 'none' : '';
+  }
+}
+
+function closeProgModal() {
+  const overlay = document.getElementById('progModalOverlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function saveProg() {
+  let type = document.getElementById('prog-type').value;
+  let catId = type === 'recette' ? null : document.getElementById('prog-cat').value;
+  let lib = document.getElementById('prog-libelle').value.trim();
+  let mont = parseFloat(document.getElementById('prog-montant').value);
+  let recur = document.getElementById('prog-recurrence').value;
+  let debut = document.getElementById('prog-debut').value;
+  let fin = document.getElementById('prog-fin').value;
+  if (!lib || !mont || mont <= 0 || !debut || !fin) return showToast('Champs requis', 'error');
+  if (debut > fin) return showToast('La date de fin doit être postérieure', 'error');
+  state.programmations.push({
+    id: uid(),
+    type,
+    catId,
+    libelle: lib,
+    montant: mont,
+    recurrence: recur,
+    debut,
+    fin,
+    notes: document.getElementById('prog-notes').value,
+    suspended: false
+  });
+  saveState();
+  closeProgModal();
+  showToast('Programmé !', 'success');
+  if (currentPage === 'programmation') renderProgrammation();
+  updateBadges();
+}
+
+function suspendProg(pid) {
+  let p = state.programmations.find(x => x.id === pid);
+  if (p) {
+    p.suspended = !p.suspended;
+    saveState();
+    renderProgrammation();
+    updateBadges();
+  }
+}
+
+function deleteProg(pid) {
+  if (confirm('Supprimer cette programmation ?')) {
+    state.programmations = state.programmations.filter(p => p.id !== pid);
+    saveState();
+    renderProgrammation();
+    updateBadges();
+  }
+}
+
+let editingProgId = null;
+
+function openEditProgModal(pid) {
+  let p = state.programmations.find(x => x.id === pid);
+  if (!p) return;
+  editingProgId = pid;
+  let catOptions = state.categories.map(c => `<option value="${c.id}" ${c.id === p.catId ? 'selected' : ''}>${c.icon} ${c.name}</option>`).join('');
+  const modalBody = document.getElementById('editProgModalBody');
+  if (modalBody) {
+    modalBody.innerHTML = `
+      <div class="form-row">
+        <div class="form-group"><label>Type</label><select id="eprog-type"><option value="depense" ${p.type === 'depense' ? 'selected' : ''}>Dépense</option><option value="recette" ${p.type === 'recette' ? 'selected' : ''}>Recette</option></select></div>
+        <div class="form-group" id="eprogCatGroup" style="${p.type === 'recette' ? 'display:none' : ''}"><label>Catégorie</label><select id="eprog-cat">${catOptions}</select></div>
+      </div>
+      <div class="form-group"><label>Libellé</label><input type="text" id="eprog-libelle" value="${p.libelle.replace(/"/g, '&quot;')}"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Montant (€)</label><input type="number" id="eprog-montant" value="${p.montant}" step="0.01"></div>
+        <div class="form-group"><label>Récurrence</label><select id="eprog-recurrence"><option value="unique" ${p.recurrence === 'unique' ? 'selected' : ''}>Unique</option><option value="mensuel" ${p.recurrence === 'mensuel' ? 'selected' : ''}>Mensuel</option><option value="trimestriel" ${p.recurrence === 'trimestriel' ? 'selected' : ''}>Trimestriel</option><option value="annuel" ${p.recurrence === 'annuel' ? 'selected' : ''}>Annuel</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Début</label><input type="date" id="eprog-debut" value="${p.debut}"></div>
+        <div class="form-group"><label>Fin</label><input type="date" id="eprog-fin" value="${p.fin}"></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="eprog-notes" rows="2">${p.notes || ''}</textarea></div>`;
+  }
+  const typeSelect = document.getElementById('eprog-type');
+  if (typeSelect) {
+    typeSelect.onchange = () => {
+      const catGroup = document.getElementById('eprogCatGroup');
+      if (catGroup) catGroup.style.display = typeSelect.value === 'recette' ? 'none' : '';
+    };
+  }
+  const overlay = document.getElementById('editProgModalOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeEditProgModal() {
+  const overlay = document.getElementById('editProgModalOverlay');
+  if (overlay) overlay.classList.remove('open');
+  editingProgId = null;
+}
+
+function saveEditProg() {
+  if (!editingProgId) return;
+  let p = state.programmations.find(x => x.id === editingProgId);
+  if (!p) return;
+  let lib = document.getElementById('eprog-libelle').value.trim();
+  let mont = parseFloat(document.getElementById('eprog-montant').value);
+  let debut = document.getElementById('eprog-debut').value;
+  let fin = document.getElementById('eprog-fin').value;
+  if (!lib || !mont || mont <= 0 || !debut || !fin) return showToast('Champs requis', 'error');
+  p.libelle = lib;
+  p.montant = mont;
+  p.recurrence = document.getElementById('eprog-recurrence').value;
+  p.debut = debut;
+  p.fin = fin;
+  p.notes = document.getElementById('eprog-notes').value;
+  p.type = document.getElementById('eprog-type').value;
+  if (p.type !== 'recette') p.catId = document.getElementById('eprog-cat').value;
+  saveState();
+  closeEditProgModal();
+  showToast('Programmation modifiée', 'success');
+  renderProgrammation();
+  updateBadges();
+}
+
+function renderProgrammation() {
+  let cont = document.getElementById('progListContainer');
+  if (!cont) return;
+  if (!state.programmations.length) {
+    cont.innerHTML = '<p style="padding:20px;text-align:center;color:#6c757d;">Aucune programmation</p>';
+    return;
+  }
+  cont.innerHTML = state.programmations.map(p => {
+    let cat = state.categories.find(c => c.id === p.catId);
+    return `<div class="prog-item ${p.suspended ? 'suspended' : ''}">
+      <div class="pi-info">
+        <div class="pi-name">${p.libelle} ${p.suspended ? '⏸ Suspendu' : ''}</div>
+        <div class="pi-meta"><span class="badge badge-amber">${p.recurrence}</span> ${cat ? cat.icon + ' ' + cat.name : ''} ${p.debut} → ${p.fin}${p.notes ? ' 📝 ' + p.notes : ''}</div>
+      </div>
+      <div>
+        <div class="pi-amount ${p.type === 'recette' ? 'text-green' : 'text-red'}">${fmtEur(p.montant)}</div>
+        <div style="display:flex;gap:4px;margin-top:6px;">
+          <button class="btn btn-secondary btn-sm editProgBtn" data-id="${p.id}">✏️</button>
+          <button class="btn btn-secondary btn-sm suspendProgBtn" data-id="${p.id}">${p.suspended ? '▶️' : '⏸️'}</button>
+          <button class="btn btn-danger btn-sm deleteProgBtn" data-id="${p.id}">🗑️</button>
+        </div>
+      </div>
+    </div>`;
   }).join('');
-  document.getElementById('repTotalCalc').innerHTML=fmtEur(totalCalc);document.getElementById('repTotalBudget').innerHTML=fmtEur(totalBudget);
+  
+  document.querySelectorAll('.editProgBtn').forEach(btn => {
+    btn.onclick = () => openEditProgModal(btn.dataset.id);
+  });
+  document.querySelectorAll('.suspendProgBtn').forEach(btn => {
+    btn.onclick = () => suspendProg(btn.dataset.id);
+  });
+  document.querySelectorAll('.deleteProgBtn').forEach(btn => {
+    btn.onclick = () => deleteProg(btn.dataset.id);
+  });
 }
-function updateRepartType(cid,type){if(!state.repartitionConfig[cid])state.repartitionConfig[cid]={type:'pct',val:''};state.repartitionConfig[cid].type=type;saveState();renderRepartition();}
-function updateRepartVal(cid,val){if(!state.repartitionConfig[cid])state.repartitionConfig[cid]={type:'pct',val:''};state.repartitionConfig[cid].val=val===''?'':parseFloat(val);saveState();renderRepartition();}
-function applyRepartition(){
-  let totalRec=getTotalRecettes(),md=getMonthData();if(!md.budgets)md.budgets={};
-  state.categories.forEach(c=>{let cfg=state.repartitionConfig[c.id];if(cfg&&cfg.val!==''&&!isNaN(cfg.val)){let calc=cfg.type==='pct'?(cfg.val/100)*totalRec:cfg.val;if(calc>0)md.budgets[c.id]=Math.round(calc*100)/100;}});
-  saveState();renderRepartition();updateBadges();showToast('Budgets mis à jour','success');
+
+// REPARTITION
+function renderRepartition() {
+  let totalRec = getTotalRecettes();
+  const totalRevLabel = document.getElementById('totalRevLabel');
+  if (totalRevLabel) totalRevLabel.innerHTML = fmtEur(totalRec);
+  let md = getMonthData();
+  let totalCalc = 0;
+  let totalBudget = 0;
+  const repTableBody = document.getElementById('repTableBody');
+  if (repTableBody) {
+    repTableBody.innerHTML = state.categories.map(c => {
+      let cfg = state.repartitionConfig[c.id] || { type: 'pct', val: '' };
+      let val = cfg.val === '' ? '' : parseFloat(cfg.val);
+      let calc = (val && !isNaN(val)) ? (cfg.type === 'pct' ? (val / 100) * totalRec : val) : 0;
+      totalCalc += calc;
+      totalBudget += (md.budgets || {})[c.id] || 0;
+      return `<tr>
+        <td><span style="font-size:1.1rem;">${c.icon}</span> ${c.name}</td>
+        <td><select class="repTypeSelect" data-cat="${c.id}"><option value="pct" ${cfg.type === 'pct' ? 'selected' : ''}>%</option><option value="fixed" ${cfg.type === 'fixed' ? 'selected' : ''}>€</option></select></td>
+        <td><input type="number" class="repValInput" data-cat="${c.id}" value="${cfg.val}" style="width:70px;"></td>
+        <td class="mono">${calc > 0 ? fmtEur(calc) : '—'}</td>
+        <td class="mono">${fmtEur((md.budgets || {})[c.id] || 0)}</td>
+      </tr>`;
+    }).join('');
+  }
+  const repTotalCalc = document.getElementById('repTotalCalc');
+  const repTotalBudget = document.getElementById('repTotalBudget');
+  if (repTotalCalc) repTotalCalc.innerHTML = fmtEur(totalCalc);
+  if (repTotalBudget) repTotalBudget.innerHTML = fmtEur(totalBudget);
+  
+  document.querySelectorAll('.repTypeSelect').forEach(sel => {
+    sel.onchange = () => updateRepartType(sel.dataset.cat, sel.value);
+  });
+  document.querySelectorAll('.repValInput').forEach(inp => {
+    inp.onchange = () => updateRepartVal(inp.dataset.cat, inp.value);
+  });
 }
 
-// ===== BILAN =====
-function renderBilan(){
-  let totalRec=getTotalRecettes(),totalDep=state.categories.reduce((s,c)=>s+Math.max(0,getTotalDepensesCat(c.id)),0),solde=totalRec-totalDep,md=getMonthData();
-  document.getElementById('bilanContent').innerHTML=`<div class="card"><div class="card-header"><h3>Résumé ${MONTHS[currentMonth]} ${currentYear}</h3></div><div class="card-body"><table style="width:100%"><tr><td style="padding:8px 0">💰 Recettes</td><td style="text-align:right;color:var(--green)">${fmtEur(totalRec)}</td></tr><tr><td style="padding:8px 0">💸 Dépenses</td><td style="text-align:right;color:var(--red)">${fmtEur(totalDep)}</td></tr><tr><td style="padding:12px 0 0"><strong>📊 Solde</strong></td><td style="text-align:right;font-size:1.2rem;color:${solde>=0?'var(--green)':'var(--red)'}">${fmtEur(solde)}</td></tr></table></div></div><div class="card"><div class="card-header"><h3>Détail par catégorie (avec reports)</h3></div><div class="card-body"><table class="rep-table"><thead><tr><th>Catégorie</th><th>Budget</th><th>Report</th><th>Effectif</th><th>Dépensé</th><th>Reste</th></tr></thead><tbody>${state.categories.map(c=>{let baseBudget=(md.budgets||{})[c.id]||0,carry=getCarryOver(c.id),eff=baseBudget+carry,spent=getTotalDepensesCat(c.id),reste=eff-spent;return`<tr><td>${c.icon} ${c.name}</td><td class="mono">${fmtEur(baseBudget)}</td><td class="mono">${carry>0?'+':''}${fmtEur(carry)}</td><td class="mono"><strong>${fmtEur(eff)}</strong></td><td class="mono" style="color:var(--red)">${fmtEur(spent)}</td><td class="mono" style="color:${reste>=0?'var(--green)':'var(--red)'}">${fmtEur(reste)}</td></tr>`;}).join('')}</tbody></table></div></div>`;
+function updateRepartType(cid, type) {
+  if (!state.repartitionConfig[cid]) state.repartitionConfig[cid] = { type: 'pct', val: '' };
+  state.repartitionConfig[cid].type = type;
+  saveState();
+  renderRepartition();
 }
-function printBilan(){window.print();}
 
-// ===== CATÉGORIES =====
-function renderCatManager(){
-  document.getElementById('catManagerList').innerHTML=state.categories.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--grey-100);"><span style="font-size:1.3rem;">${c.icon}</span><span style="flex:1;">${c.name}</span><input type="text" value="${c.icon}" onchange="updateCatIcon('${c.id}',this.value)" style="width:50px;padding:6px;"><input type="text" value="${c.name}" onchange="updateCatName('${c.id}',this.value)" style="width:90px;padding:6px;"><button class="btn btn-danger btn-sm" onclick="deleteCategory('${c.id}')">🗑️</button></div>`).join('');
+function updateRepartVal(cid, val) {
+  if (!state.repartitionConfig[cid]) state.repartitionConfig[cid] = { type: 'pct', val: '' };
+  state.repartitionConfig[cid].val = val === '' ? '' : parseFloat(val);
+  saveState();
+  renderRepartition();
 }
-function addCategory(){let name=document.getElementById('newCatName').value.trim();if(!name)return showToast('Nom requis','error');let icon=document.getElementById('newCatIcon').value.trim()||'📦';let id=name.toLowerCase().replace(/[^a-z0-9]/g,'_')+'_'+Date.now();state.categories.push({id,name,icon});saveState();buildSidebar();renderCatManager();document.getElementById('newCatName').value='';showToast('Catégorie ajoutée','success');}
-function updateCatName(id,name){let c=state.categories.find(c=>c.id===id);if(c){c.name=name;saveState();buildSidebar();}}
-function updateCatIcon(id,icon){let c=state.categories.find(c=>c.id===id);if(c){c.icon=icon;saveState();buildSidebar();renderCatManager();}}
-function deleteCategory(id){if(!confirm('Supprimer cette catégorie et toutes ses données ?'))return;state.categories=state.categories.filter(c=>c.id!==id);Object.values(state.months).forEach(m=>{delete m.depenses[id];delete m.budgets[id];});state.programmations=state.programmations.filter(p=>p.catId!==id);saveState();buildSidebar();renderCatManager();showToast('Catégorie supprimée','warning');}
 
-// ===== EXPORT/IMPORT =====
-function exportData(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download=`budget_${currentYear}_${currentMonth+1}.json`;a.click();showToast('Export terminé','success');}
-function importDataClick(){document.getElementById('importFileInput').click();}
-function importData(e){let file=e.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=ev=>{try{let data=JSON.parse(ev.target.result);if(!data.categories)throw new Error();if(confirm('Remplacer toutes les données ?')){state=data;saveState();buildSidebar();navigateTo('dashboard');showToast('Import réussi','success');}}catch(err){showToast('Fichier invalide','error');}};reader.readAsText(file);e.target.value='';}
-function resetMonth(){let md=getMonthData();md.recettes=[];state.categories.forEach(c=>{md.depenses[c.id]=[];});saveState();if(currentCat)renderCatPage(currentCat);else navigateTo(currentPage);showToast('Mois réinitialisé','warning');}
+function applyRepartition() {
+  let totalRec = getTotalRecettes();
+  let md = getMonthData();
+  if (!md.budgets) md.budgets = {};
+  state.categories.forEach(c => {
+    let cfg = state.repartitionConfig[c.id];
+    if (cfg && cfg.val !== '' && !isNaN(cfg.val)) {
+      let calc = cfg.type === 'pct' ? (cfg.val / 100) * totalRec : cfg.val;
+      if (calc > 0) md.budgets[c.id] = Math.round(calc * 100) / 100;
+    }
+  });
+  saveState();
+  renderRepartition();
+  updateBadges();
+  showToast('Budgets mis à jour', 'success');
+}
 
-// ===== MOBILE SIDEBAR =====
-function openMobileSidebar(){document.getElementById('sidebarMobile').classList.add('open');document.getElementById('sidebarOverlay').style.display='block';}
-function closeMobileSidebar(){document.getElementById('sidebarMobile').classList.remove('open');document.getElementById('sidebarOverlay').style.display='none';}
+// BILAN
+function renderBilan() {
+  let totalRec = getTotalRecettes();
+  let totalDep = state.categories.reduce((s, c) => s + Math.max(0, getTotalDepensesCat(c.id)), 0);
+  let solde = totalRec - totalDep;
+  let md = getMonthData();
+  const bilanContent = document.getElementById('bilanContent');
+  if (bilanContent) {
+    bilanContent.innerHTML = `<div class="card">
+      <div class="card-header"><h3>Résumé ${MONTHS[currentMonth]} ${currentYear}</h3></div>
+      <div class="card-body">
+        <table style="width:100%">
+          <tr><td style="padding:8px 0">💰 Recettes</td><td style="text-align:right;color:var(--green)">${fmtEur(totalRec)}</td></tr>
+          <tr><td style="padding:8px 0">💸 Dépenses</td><td style="text-align:right;color:var(--red)">${fmtEur(totalDep)}</td></tr>
+          <tr><td style="padding:12px 0 0"><strong>📊 Solde</strong></td><td style="text-align:right;font-size:1.2rem;color:${solde >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtEur(solde)}</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Détail par catégorie (avec reports)</h3></div>
+      <div class="card-body">
+        <table class="rep-table">
+          <thead><tr><th>Catégorie</th><th>Budget</th><th>Report</th><th>Effectif</th><th>Dépensé</th><th>Reste</th></tr></thead>
+          <tbody>${state.categories.map(c => {
+            let baseBudget = (md.budgets || {})[c.id] || 0;
+            let carry = getCarryOver(c.id);
+            let eff = baseBudget + carry;
+            let spent = getTotalDepensesCat(c.id);
+            let reste = eff - spent;
+            return `<tr>
+              <td>${c.icon} ${c.name}</td>
+              <td class="mono">${fmtEur(baseBudget)}</td>
+              <td class="mono">${carry > 0 ? '+' : ''}${fmtEur(carry)}</td>
+              <td class="mono"><strong>${fmtEur(eff)}</strong></td>
+              <td class="mono" style="color:var(--red)">${fmtEur(spent)}</td>
+              <td class="mono" style="color:${reste >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtEur(reste)}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }
+}
 
-// ===== INIT =====
-function init(){
+function printBilan() { window.print(); }
+
+// CATEGORIES MANAGER
+function renderCatManager() {
+  const catManagerList = document.getElementById('catManagerList');
+  if (catManagerList) {
+    catManagerList.innerHTML = state.categories.map(c => `<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--grey-100);">
+      <span style="font-size:1.3rem;">${c.icon}</span>
+      <span style="flex:1;">${c.name}</span>
+      <input type="text" value="${c.icon}" data-cat="${c.id}" class="catIconInput" style="width:50px;padding:6px;">
+      <input type="text" value="${c.name}" data-cat="${c.id}" class="catNameInput" style="width:90px;padding:6px;">
+      <button class="btn btn-danger btn-sm deleteCatBtn" data-id="${c.id}">🗑️</button>
+    </div>`).join('');
+    
+    document.querySelectorAll('.catIconInput').forEach(inp => {
+      inp.onchange = () => updateCatIcon(inp.dataset.cat, inp.value);
+    });
+    document.querySelectorAll('.catNameInput').forEach(inp => {
+      inp.onchange = () => updateCatName(inp.dataset.cat, inp.value);
+    });
+    document.querySelectorAll('.deleteCatBtn').forEach(btn => {
+      btn.onclick = () => deleteCategory(btn.dataset.id);
+    });
+  }
+}
+
+function addCategory() {
+  let name = document.getElementById('newCatName').value.trim();
+  if (!name) return showToast('Nom requis', 'error');
+  let icon = document.getElementById('newCatIcon').value.trim() || '📦';
+  let id = name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
+  state.categories.push({ id, name, icon });
+  saveState();
+  buildSidebar();
+  renderCatManager();
+  document.getElementById('newCatName').value = '';
+  showToast('Catégorie ajoutée', 'success');
+}
+
+function updateCatName(id, name) {
+  let c = state.categories.find(c => c.id === id);
+  if (c) { c.name = name; saveState(); buildSidebar(); }
+}
+
+function updateCatIcon(id, icon) {
+  let c = state.categories.find(c => c.id === id);
+  if (c) { c.icon = icon; saveState(); buildSidebar(); renderCatManager(); }
+}
+
+function deleteCategory(id) {
+  if (!confirm('Supprimer cette catégorie et toutes ses données ?')) return;
+  state.categories = state.categories.filter(c => c.id !== id);
+  Object.values(state.months).forEach(m => {
+    delete m.depenses[id];
+    delete m.budgets[id];
+  });
+  state.programmations = state.programmations.filter(p => p.catId !== id);
+  saveState();
+  buildSidebar();
+  renderCatManager();
+  showToast('Catégorie supprimée', 'warning');
+}
+
+// EXPORT/IMPORT
+function exportData() {
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }));
+  a.download = `budget_${currentYear}_${currentMonth + 1}.json`;
+  a.click();
+  showToast('Export terminé', 'success');
+}
+
+function importDataClick() {
+  document.getElementById('importFileInput').click();
+}
+
+function importData(e) {
+  let file = e.target.files[0];
+  if (!file) return;
+  let reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      let data = JSON.parse(ev.target.result);
+      if (!data.categories) throw new Error();
+      if (confirm('Remplacer toutes les données ?')) {
+        state = data;
+        saveState();
+        buildSidebar();
+        navigateTo('dashboard');
+        showToast('Import réussi', 'success');
+      }
+    } catch (err) {
+      showToast('Fichier invalide', 'error');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function resetMonth() {
+  let md = getMonthData();
+  md.recettes = [];
+  state.categories.forEach(c => { md.depenses[c.id] = []; });
+  saveState();
+  if (currentCat) renderCatPage(currentCat);
+  else navigateTo(currentPage);
+  showToast('Mois réinitialisé', 'warning');
+}
+
+// MOBILE SIDEBAR
+function openMobileSidebar() {
+  const sidebar = document.getElementById('sidebarMobile');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.add('open');
+  if (overlay) overlay.style.display = 'block';
+}
+
+function closeMobileSidebar() {
+  const sidebar = document.getElementById('sidebarMobile');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.style.display = 'none';
+}
+
+// REFRESH ALL
+function refreshAll() {
+  if (currentCat) renderCatPage(currentCat);
+  else navigateTo(currentPage);
+  showToast('Données actualisées', 'success');
+}
+
+// INITIALIZATION
+function init() {
   loadState();
-  const monthSels=['monthSelectDesktop','monthSelectMobile'],yearSels=['yearSelectDesktop','yearSelectMobile'];
-  monthSels.forEach(selId=>{let sel=document.getElementById(selId);if(sel)MONTHS.forEach((m,i)=>{let opt=document.createElement('option');opt.value=i;opt.textContent=m;if(i===currentMonth)opt.selected=true;sel.appendChild(opt);});});
-  yearSels.forEach(selId=>{let sel=document.getElementById(selId);if(sel)for(let y=currentYear-2;y<=currentYear+3;y++){let opt=document.createElement('option');opt.value=y;opt.textContent=y;if(y===currentYear)opt.selected=true;sel.appendChild(opt);}});
-  const syncMonth=()=>{currentMonth=parseInt(document.getElementById('monthSelectDesktop').value);currentYear=parseInt(document.getElementById('yearSelectDesktop').value);['monthSelectMobile','yearSelectMobile'].forEach((id,i)=>{let el=document.getElementById(id);if(el)el.value=i===0?currentMonth:currentYear;});if(currentCat)renderCatPage(currentCat);else navigateTo(currentPage);};
-  document.getElementById('monthSelectDesktop')?.addEventListener('change',syncMonth);
-  document.getElementById('yearSelectDesktop')?.addEventListener('change',syncMonth);
-  document.getElementById('monthSelectMobile')?.addEventListener('change',()=>{currentMonth=parseInt(document.getElementById('monthSelectMobile').value);document.getElementById('monthSelectDesktop').value=currentMonth;if(currentCat)renderCatPage(currentCat);else navigateTo(currentPage);closeMobileSidebar();});
-  document.getElementById('yearSelectMobile')?.addEventListener('change',()=>{currentYear=parseInt(document.getElementById('yearSelectMobile').value);document.getElementById('yearSelectDesktop').value=currentYear;if(currentCat)renderCatPage(currentCat);else navigateTo(currentPage);closeMobileSidebar();});
-  document.getElementById('hamburgerBtn')?.addEventListener('click',openMobileSidebar);
-  document.getElementById('closeSidebarBtn')?.addEventListener('click',closeMobileSidebar);
-  document.getElementById('sidebarOverlay')?.addEventListener('click',closeMobileSidebar);
-  buildSidebar();navigateTo('dashboard');
-  document.getElementById('importFileInput').onchange=importData;
-  // Expose globals
-  ['scrollToAddForm','addRecette','removeRecette','openEditModal','closeEditModal','saveEdit','updateCatBudget','addDepense','removeDepense','openProgModal','closeProgModal','saveProg','suspendProg','deleteProg','onProgTypeChange','updateRepartType','updateRepartVal','applyRepartition','addCategory','updateCatName','updateCatIcon','deleteCategory','exportData','importDataClick','resetMonth','printBilan','navigateTo','addAuthorizedUser','removeAuthorizedUser','signInWithGoogle','signInWithEmail','signOut'].forEach(fn=>{window[fn]=eval(fn);});
+  
+  // Setup month/year selects
+  const monthSels = ['monthSelectDesktop', 'monthSelectMobile'];
+  const yearSels = ['yearSelectDesktop', 'yearSelectMobile'];
+  
+  monthSels.forEach(selId => {
+    let sel = document.getElementById(selId);
+    if (sel) {
+      sel.innerHTML = '';
+      MONTHS.forEach((m, i) => {
+        let opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = m;
+        if (i === currentMonth) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+  });
+  
+  yearSels.forEach(selId => {
+    let sel = document.getElementById(selId);
+    if (sel) {
+      sel.innerHTML = '';
+      for (let y = currentYear - 2; y <= currentYear + 3; y++) {
+        let opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        if (y === currentYear) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+  });
+  
+  const syncMonth = () => {
+    currentMonth = parseInt(document.getElementById('monthSelectDesktop').value);
+    currentYear = parseInt(document.getElementById('yearSelectDesktop').value);
+    const mobileMonth = document.getElementById('monthSelectMobile');
+    const mobileYear = document.getElementById('yearSelectMobile');
+    if (mobileMonth) mobileMonth.value = currentMonth;
+    if (mobileYear) mobileYear.value = currentYear;
+    if (currentCat) renderCatPage(currentCat);
+    else navigateTo(currentPage);
+  };
+  
+  const desktopMonth = document.getElementById('monthSelectDesktop');
+  const desktopYear = document.getElementById('yearSelectDesktop');
+  if (desktopMonth) desktopMonth.addEventListener('change', syncMonth);
+  if (desktopYear) desktopYear.addEventListener('change', syncMonth);
+  
+  const mobileMonth = document.getElementById('monthSelectMobile');
+  const mobileYear = document.getElementById('yearSelectMobile');
+  if (mobileMonth) {
+    mobileMonth.addEventListener('change', () => {
+      currentMonth = parseInt(mobileMonth.value);
+      if (desktopMonth) desktopMonth.value = currentMonth;
+      if (currentCat) renderCatPage(currentCat);
+      else navigateTo(currentPage);
+      closeMobileSidebar();
+    });
+  }
+  if (mobileYear) {
+    mobileYear.addEventListener('change', () => {
+      currentYear = parseInt(mobileYear.value);
+      if (desktopYear) desktopYear.value = currentYear;
+      if (currentCat) renderCatPage(currentCat);
+      else navigateTo(currentPage);
+      closeMobileSidebar();
+    });
+  }
+  
+  // Mobile sidebar controls
+  const hamburger = document.getElementById('hamburgerBtn');
+  if (hamburger) hamburger.addEventListener('click', openMobileSidebar);
+  const closeSidebar = document.getElementById('closeSidebarBtn');
+  if (closeSidebar) closeSidebar.addEventListener('click', closeMobileSidebar);
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeMobileSidebar);
+  
+  // Login buttons
+  const googleBtn = document.getElementById('googleSignInBtn');
+  if (googleBtn) googleBtn.onclick = signInWithGoogle;
+  const emailBtn = document.getElementById('emailSignInBtn');
+  if (emailBtn) emailBtn.onclick = signInWithEmail;
+  
+  // Action buttons
+  const refreshBtns = ['refreshDashboardBtn', 'refreshRecettesBtn', 'refreshCatBtn', 'refreshProgBtn'];
+  refreshBtns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.onclick = refreshAll;
+  });
+  
+  const printBtns = ['printDashboardBtn', 'printRecettesBtn', 'printCatBtn', 'printProgBtn', 'printBilanBtn'];
+  printBtns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.onclick = () => window.print();
+  });
+  
+  const progBtns = ['progDashboardBtn', 'progRecettesBtn', 'newProgBtn'];
+  progBtns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.onclick = () => openProgModal();
+  });
+  
+  const progCatBtn = document.getElementById('progCatBtn');
+  if (progCatBtn) progCatBtn.onclick = () => openProgModal('depense', currentCat);
+  
+  const scrollBtn = document.getElementById('scrollToAddBtn');
+  if (scrollBtn) scrollBtn.onclick = scrollToAddForm;
+  
+  const addRecetteBtn = document.getElementById('addRecetteBtn');
+  if (addRecetteBtn) addRecetteBtn.onclick = addRecette;
+  
+  const addCategoryBtn = document.getElementById('addCategoryBtn');
+  if (addCategoryBtn) addCategoryBtn.onclick = addCategory;
+  
+  const applyRepartBtn = document.getElementById('applyRepartBtn');
+  if (applyRepartBtn) applyRepartBtn.onclick = applyRepartition;
+  
+  const addUserBtn = document.getElementById('addUserBtn');
+  if (addUserBtn) addUserBtn.onclick = addAuthorizedUser;
+  
+  // Export/Import/Reset buttons
+  const exportBtns = ['exportBtnDesktop', 'exportBtnMobile'];
+  exportBtns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.onclick = exportData;
+  });
+  
+  const importBtns = ['importBtnDesktop', 'importBtnMobile'];
+  importBtns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.onclick = importDataClick;
+  });
+  
+  const resetBtns = ['resetBtnDesktop', 'resetBtnMobile'];
+  resetBtns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.onclick = () => { if (confirm('Réinitialiser le mois ?')) resetMonth(); };
+  });
+  
+  // Modal buttons
+  const closeProgBtns = document.querySelectorAll('.closeProgModalBtn');
+  closeProgBtns.forEach(btn => btn.onclick = closeProgModal);
+  
+  const closeEditBtns = document.querySelectorAll('.closeEditModalBtn');
+  closeEditBtns.forEach(btn => btn.onclick = closeEditModal);
+  
+  const closeEditProgBtns = document.querySelectorAll('.closeEditProgModalBtn');
+  closeEditProgBtns.forEach(btn => btn.onclick = closeEditProgModal);
+  
+  const saveProgBtn = document.getElementById('saveProgBtn');
+  if (saveProgBtn) saveProgBtn.onclick = saveProg;
+  
+  const saveEditBtn = document.getElementById('saveEditBtn');
+  if (saveEditBtn) saveEditBtn.onclick = saveEdit;
+  
+  const saveEditProgBtn = document.getElementById('saveEditProgBtn');
+  if (saveEditProgBtn) saveEditProgBtn.onclick = saveEditProg;
+  
+  const progType = document.getElementById('prog-type');
+  if (progType) progType.onchange = onProgTypeChange;
+  
+  const importFile = document.getElementById('importFileInput');
+  if (importFile) importFile.onchange = importData;
+  
+  // Auth state listener
+  auth.onAuthStateChanged(async user => {
+    if (user) {
+      const allowed = await checkUserAllowed(user.email);
+      if (!allowed) {
+        await auth.signOut();
+        return;
+      }
+      await afterLogin(user);
+    } else {
+      document.getElementById('loginScreen').classList.add('active');
+    }
+  });
+  
+  buildSidebar();
+  navigateTo('dashboard');
 }
+
+// Start the app
 init();
 </script>
 </body>
