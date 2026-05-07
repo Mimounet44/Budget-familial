@@ -5,9 +5,9 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Budget Familial - Version Mobile</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -327,7 +327,7 @@ input:focus,select:focus{outline:none;border-color:var(--green-light);}
 <script>
 const firebaseConfig={apiKey:"AIzaSyB7xBajLC9cMDMNDyWnM-495uivwKsg3po",authDomain:"budget-familial-99207.firebaseapp.com",databaseURL:"https://budget-familial-99207-default-rtdb.europe-west1.firebasedatabase.app",projectId:"budget-familial-99207",storageBucket:"budget-familial-99207.firebasestorage.app",messagingSenderId:"697097113241",appId:"1:697097113241:web:24575cfaf92119bb7df208"};
 firebase.initializeApp(firebaseConfig);
-// ✅ db et auth initialisés avant tout appel
+// ✅ db et auth initialisés AVANT tout appel
 const db=firebase.firestore();
 const auth=firebase.auth();
 
@@ -416,20 +416,10 @@ function loadState(){
 // ===== AUTH =====
 async function signInWithGoogle(){
   const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({prompt: 'select_account'});
-  try {
-    // Essai popup d'abord
-    const result = await auth.signInWithPopup(provider);
-    await afterLogin(result.user);
-  } catch(e){
-    if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request'){
-      // Popup bloqué → fallback redirect
-      try { await auth.signInWithRedirect(provider); }
-      catch(e2){ document.getElementById('loginError').textContent = 'Erreur: ' + e2.message; }
-    } else {
-      document.getElementById('loginError').textContent = 'Erreur: ' + e.message;
-    }
-  }
+  provider.setCustomParameters({prompt:'select_account'});
+  // Toujours redirect — GitHub Pages bloque les popups OAuth (header COOP)
+  try{ await auth.signInWithRedirect(provider); }
+  catch(e){ document.getElementById('loginError').textContent='Erreur: '+e.message; }
 }
 
 async function signInWithEmail(){
@@ -452,38 +442,32 @@ async function signInWithEmail(){
 }
 
 async function checkUserAllowed(email){
-  // Tente de vérifier dans Firestore, mais ne bloque JAMAIS si ça échoue
   try{
     const docRef=db.collection('settings').doc('authorizedUsers');
     const doc=await docRef.get();
     if(!doc.exists){
-      // Premier utilisateur → devient admin automatiquement
       await docRef.set({users:[{email:email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
       return true;
     }
     const users=doc.data().users||[];
     const found=users.some(u=>u.email.toLowerCase()===email.toLowerCase());
-    if(!found){
-      // Ajoute automatiquement si liste vide, sinon refuse
-      if(users.length===0){
-        await docRef.set({users:[{email:email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
-        return true;
-      }
-      return false;
+    if(!found && users.length===0){
+      await docRef.set({users:[{email:email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
+      return true;
     }
-    return true;
+    return found;
   }catch(e){
-    // ⚠️ Firestore inaccessible (permissions, réseau) → on laisse passer
     console.warn('checkUserAllowed failed, allowing login:', e.message);
-    return true;
+    return true; // Ne jamais bloquer si Firestore est inaccessible
   }
 }
 
 async function afterLogin(user){
   currentUser=user;
   document.getElementById('loginScreen').classList.remove('active');
-  document.getElementById('loginError').textContent='';
-  // ✅ Effacement des champs email/mot de passe
+  const loginError=document.getElementById('loginError');
+  if(loginError)loginError.textContent='';
+  // Effacement des champs login
   const emailEl=document.getElementById('loginEmail');
   const passEl=document.getElementById('loginPassword');
   if(emailEl)emailEl.value='';
@@ -514,35 +498,28 @@ function updateUserInfo(user){
   else{id.style.display='none';im.style.display='none';}
 }
 
-// ✅ On attend que le DOM soit prêt avant d'écouter Firebase Auth
+// ✅ DOM prêt avant d'écouter Firebase Auth
 document.addEventListener('DOMContentLoaded', () => {
-auth.onAuthStateChanged(async user=>{
-  if(user){
-    // Utilisateur connecté → accès direct, sans vérification Firestore bloquante
-    await afterLogin(user);
-  } else {
-    try {
-      const result = await auth.getRedirectResult();
-      if (result && result.user) {
-        // Retour après redirect Google → enregistre l'utilisateur si nouveau
-        try {
-          const docRef=db.collection('settings').doc('authorizedUsers');
-          const doc=await docRef.get();
-          if(!doc.exists){
-            await docRef.set({users:[{email:result.user.email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
-          }
-        } catch(e){ console.warn('init user doc:', e.message); }
-        await afterLogin(result.user);
-      } else {
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      // Session active → confiance totale à Firebase, pas de re-vérification Firestore
+      await afterLogin(user);
+    } else {
+      // Vérifier retour après redirect Google (mobile/GitHub Pages)
+      try{
+        const result=await auth.getRedirectResult();
+        if(result && result.user){
+          await afterLogin(result.user);
+        } else {
+          document.getElementById('loginScreen').classList.add('active');
+        }
+      }catch(e){
+        console.warn('getRedirectResult:',e);
         document.getElementById('loginScreen').classList.add('active');
       }
-    } catch(e) {
-      console.warn('getRedirectResult:', e);
-      document.getElementById('loginScreen').classList.add('active');
     }
-  }
+  });
 });
-}); // fin DOMContentLoaded
 
 // ===== ADMIN =====
 async function addAuthorizedUser(){
@@ -837,6 +814,7 @@ function openMobileSidebar(){document.getElementById('sidebarMobile').classList.
 function closeMobileSidebar(){document.getElementById('sidebarMobile').classList.remove('open');document.getElementById('sidebarOverlay').style.display='none';}
 
 // ===== INIT =====
+function refreshAll(){if(currentCat)renderCatPage(currentCat);else navigateTo(currentPage);}
 function init(){
   loadState();
   const monthSels=['monthSelectDesktop','monthSelectMobile'],yearSels=['yearSelectDesktop','yearSelectMobile'];
@@ -853,9 +831,9 @@ function init(){
   buildSidebar();navigateTo('dashboard');
   document.getElementById('importFileInput').onchange=importData;
   // Expose globals
-  ['scrollToAddForm','addRecette','removeRecette','openEditModal','closeEditModal','saveEdit','updateCatBudget','addDepense','removeDepense','openProgModal','closeProgModal','saveProg','suspendProg','deleteProg','onProgTypeChange','updateRepartType','updateRepartVal','applyRepartition','addCategory','updateCatName','updateCatIcon','deleteCategory','exportData','importDataClick','resetMonth','printBilan','navigateTo','addAuthorizedUser','removeAuthorizedUser','signInWithGoogle','signInWithEmail','signOut'].forEach(fn=>{window[fn]=eval(fn);});
+  ['scrollToAddForm','addRecette','removeRecette','openEditModal','closeEditModal','saveEdit','updateCatBudget','addDepense','removeDepense','openProgModal','closeProgModal','saveProg','suspendProg','deleteProg','onProgTypeChange','updateRepartType','updateRepartVal','applyRepartition','addCategory','updateCatName','updateCatIcon','deleteCategory','exportData','importDataClick','resetMonth','printBilan','navigateTo','addAuthorizedUser','removeAuthorizedUser','signInWithGoogle','signInWithEmail','signOut','refreshAll','openEditProgModal','closeEditProgModal','saveEditProg'].forEach(fn=>{window[fn]=eval(fn);});
 }
-init();
+document.addEventListener("DOMContentLoaded", init);
 </script>
 </body>
 </html>
