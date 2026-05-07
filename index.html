@@ -29,7 +29,6 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:var(--font);background:#eef1f5;min-height:100vh;color:var(--grey-800);font-size:14px;}
 
-  
 /* LOGIN */
 #loginScreen{display:none;position:fixed;inset:0;background:linear-gradient(135deg,var(--blue) 0%,#2c4a6e 100%);z-index:9999;justify-content:center;align-items:center;flex-direction:column;padding:20px;}
 #loginScreen.active{display:flex;}
@@ -401,7 +400,25 @@ function getTotalRecettes(){return getFullRecettes().reduce((s,r)=>s+r.montant,0
 
 async function saveStateToCloud(){const user=auth.currentUser;if(!user)return;try{await db.collection('budgets').doc(user.uid).set({data:state,lastUpdated:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){console.warn(e);}}
 async function saveState(){localStorage.setItem('budgetFamilial_v5',JSON.stringify(state));if(saveTimeout)clearTimeout(saveTimeout);saveTimeout=setTimeout(()=>saveStateToCloud(),500);}
-async function loadStateFromCloud(userId){try{const doc=await db.collection('budgets').doc(userId).get();if(doc.exists){state={...state,...doc.data().data};showToast('☁️ Données cloud chargées','success');return true;}}catch(e){console.warn(e);}return false;}
+async function loadStateFromCloud(userId){
+  try{
+    const doc=await db.collection('budgets').doc(userId).get();
+    if(doc.exists){
+      const cloudData=doc.data().data;
+      state={...state,...cloudData};
+      // ✅ Fusionner les nouvelles catégories par défaut manquantes
+      const existingIds=state.categories.map(c=>c.id);
+      const missingCats=defaultCategories.filter(c=>!existingIds.includes(c.id));
+      if(missingCats.length>0){
+        state.categories=[...state.categories,...missingCats];
+        saveState(); // Sauvegarder avec les nouvelles catégories
+      }
+      showToast('☁️ Données cloud chargées','success');
+      return true;
+    }
+  }catch(e){console.warn(e);}
+  return false;
+}
 
 function loadState(){
   try{const raw=localStorage.getItem('budgetFamilial_v5');if(raw)state={...state,...JSON.parse(raw)};}catch(e){}
