@@ -366,7 +366,30 @@ function showToast(msg,type=''){let el=document.getElementById('toast');if(!el)r
 
 function getMonthData(){let key=getMonthKey();if(!state.months[key])state.months[key]={recettes:[],depenses:{},budgets:{}};let md=state.months[key];state.categories.forEach(c=>{if(!md.depenses[c.id])md.depenses[c.id]=[];});return md;}
 
-function getCarryOver(catId){let prevKey=getPrevMonthKey();let prevData=state.months[prevKey];if(!prevData)return 0;let prevBudget=(prevData.budgets||{})[catId]||0;let prevDepenses=prevData.depenses[catId]||[];let prevSpent=(catId==='medical')?prevDepenses.reduce((s,t)=>t.txType==='remboursement'?s-t.montant:s+t.montant,0):prevDepenses.reduce((s,t)=>s+t.montant,0);return prevBudget-prevSpent;}
+function getCarryOver(catId){
+  let prevKey=getPrevMonthKey();let prevData=state.months[prevKey];if(!prevData)return 0;
+  let prevBudget=(prevData.budgets||{})[catId]||0;
+  // Dépenses réelles du mois précédent
+  let prevDepenses=prevData.depenses[catId]||[];
+  // Dépenses programmées du mois précédent
+  let prevY=currentYear,prevM=currentMonth-1;if(prevM<0){prevM=11;prevY--;}
+  let prevProgDepenses=[];
+  let mStart=new Date(prevY,prevM,1),mEnd=new Date(prevY,prevM+1,0);
+  state.programmations.forEach(p=>{
+    if(p.suspended||p.type==='recette'||p.catId!==catId)return;
+    let debut=new Date(p.debut),fin=new Date(p.fin);
+    if(debut>mEnd||fin<mStart)return;
+    let matches=false;
+    if(p.recurrence==='unique')matches=(debut.getMonth()===prevM&&debut.getFullYear()===prevY);
+    else if(p.recurrence==='mensuel')matches=true;
+    else if(p.recurrence==='trimestriel'){let diff=(prevY*12+prevM)-(debut.getFullYear()*12+debut.getMonth());matches=(diff>=0&&diff%3===0);}
+    else if(p.recurrence==='annuel')matches=(prevM===debut.getMonth()&&prevY>=debut.getFullYear());
+    if(matches)prevProgDepenses.push({montant:p.montant,txType:'depense'});
+  });
+  let allPrevDep=[...prevDepenses,...prevProgDepenses];
+  let prevSpent=(catId==='medical')?allPrevDep.reduce((s,t)=>t.txType==='remboursement'?s-t.montant:s+t.montant,0):allPrevDep.reduce((s,t)=>s+t.montant,0);
+  return prevBudget-prevSpent;
+}
 
 function getEffectiveBudget(catId){let md=getMonthData();let currentBudget=(md.budgets||{})[catId]||0;return currentBudget+getCarryOver(catId);}
 
