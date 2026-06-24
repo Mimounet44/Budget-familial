@@ -355,7 +355,7 @@ const defaultCategories=[
 
 let state={categories:[],programmations:[],repartitionConfig:{},months:{},suggestions:{}};
 let currentMonth=new Date().getMonth(),currentYear=new Date().getFullYear(),currentCat=null,currentPage='dashboard';
-let saveTimeout=null,editingCtx=null,currentUser=null,isAdmin=false;
+let saveTimeout=null,editingCtx=null,currentUser=null,isAdmin=false,sharedBudgetUID=null;
 
 function getMonthKey(){return `${currentYear}-${currentMonth}`;}
 function getPrevMonthKey(){let y=currentYear,m=currentMonth-1;if(m<0){m=11;y--;}return `${y}-${m}`;}
@@ -421,7 +421,7 @@ function getFullDepenses(catId){let md=getMonthData(),prog=getProgrammedForMonth
 function getTotalDepensesCat(catId){let txs=getFullDepenses(catId);if(catId==='medical')return txs.reduce((s,t)=>t.txType==='remboursement'?s-t.montant:s+t.montant,0);return txs.reduce((s,t)=>s+t.montant,0);}
 function getTotalRecettes(){return getFullRecettes().reduce((s,r)=>s+r.montant,0);}
 
-async function saveStateToCloud(){const user=auth.currentUser;if(!user)return;try{await db.collection('budgets').doc(user.uid).set({data:state,lastUpdated:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){console.warn(e);}}
+async function saveStateToCloud(){const user=auth.currentUser;if(!user||!sharedBudgetUID)return;try{await db.collection('budgets').doc(sharedBudgetUID).set({data:state,lastUpdated:firebase.firestore.FieldValue.serverTimestamp(),lastEditedBy:user.email});}catch(e){console.warn(e);}}
 async function saveState(){localStorage.setItem('budgetFamilial_v5',JSON.stringify(state));if(saveTimeout)clearTimeout(saveTimeout);saveTimeout=setTimeout(()=>saveStateToCloud(),500);}
 async function loadStateFromCloud(userId){
   try{
@@ -499,19 +499,52 @@ async function checkUserAllowed(email){
     const docRef=db.collection('settings').doc('authorizedUsers');
     const doc=await docRef.get();
     if(!doc.exists){
-      await docRef.set({users:[{email:email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
-      return true;
+      // Premier utilisateur jamais connecté : il devient propriétaire/admin
+      return true; // ownerUID sera fixé dans resolveSharedBudgetUID après connexion
     }
     const users=doc.data().users||[];
     const found=users.some(u=>u.email.toLowerCase()===email.toLowerCase());
     if(!found && users.length===0){
-      await docRef.set({users:[{email:email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]});
       return true;
     }
     return found;
   }catch(e){
     console.warn('checkUserAllowed failed, allowing login:', e.message);
     return true; // Ne jamais bloquer si Firestore est inaccessible
+  }
+}
+
+// Détermine quel budget partagé utiliser, et enregistre le propriétaire si besoin
+async function resolveSharedBudgetUID(user){
+  const docRef=db.collection('settings').doc('authorizedUsers');
+  try{
+    const doc=await docRef.get();
+    if(!doc.exists){
+      // Personne n'est encore enregistré → cet utilisateur devient le propriétaire/admin
+      await docRef.set({
+        ownerUID:user.uid,
+        users:[{email:user.email.toLowerCase(),role:'admin',addedAt:new Date().toISOString()}]
+      });
+      return user.uid;
+    }
+    const data=doc.data();
+    let ownerUID=data.ownerUID;
+    const users=data.users||[];
+    if(!ownerUID){
+      // Migration : pas encore d'ownerUID enregistré → on prend cet utilisateur comme propriétaire
+      ownerUID=user.uid;
+      await docRef.set({...data,ownerUID},{merge:true});
+    }
+    // S'assurer que l'utilisateur courant est dans la liste (au cas où il a été ajouté avant la 1ère connexion)
+    const found=users.some(u=>u.email.toLowerCase()===user.email.toLowerCase());
+    if(!found){
+      users.push({email:user.email.toLowerCase(),role:users.length?'membre':'admin',addedAt:new Date().toISOString()});
+      await docRef.set({...data,ownerUID,users},{merge:true});
+    }
+    return ownerUID;
+  }catch(e){
+    console.warn('resolveSharedBudgetUID failed, fallback to own UID:',e.message);
+    return user.uid;
   }
 }
 
@@ -527,7 +560,8 @@ async function afterLogin(user){
   if(passEl)passEl.value='';
   showToast(`👋 Bonjour ${user.displayName||user.email} !`,'success');
   updateAuthButtons(user);updateUserInfo(user);
-  await loadStateFromCloud(user.uid);
+  sharedBudgetUID=await resolveSharedBudgetUID(user);
+  await loadStateFromCloud(sharedBudgetUID);
   await checkAdminRole(user.email);
   buildSidebar();
   if(currentCat)renderCatPage(currentCat);else navigateTo(currentPage);
@@ -537,7 +571,7 @@ async function checkAdminRole(email){
   try{const doc=await db.collection('settings').doc('authorizedUsers').get();if(doc.exists){const users=doc.data().users||[];const me=users.find(u=>u.email.toLowerCase()===email.toLowerCase());isAdmin=me&&me.role==='admin';}}catch(e){isAdmin=false;}
 }
 
-async function signOut(){await auth.signOut();currentUser=null;isAdmin=false;document.getElementById('loginScreen').classList.add('active');document.getElementById('loginEmail').value='';document.getElementById('loginPassword').value='';updateAuthButtons(null);updateUserInfo(null);}
+async function signOut(){await auth.signOut();currentUser=null;isAdmin=false;sharedBudgetUID=null;document.getElementById('loginScreen').classList.add('active');document.getElementById('loginEmail').value='';document.getElementById('loginPassword').value='';updateAuthButtons(null);updateUserInfo(null);}
 
 function updateAuthButtons(user){
   const d=document.getElementById('authBtnDesktop'),m=document.getElementById('authBtnMobile');
